@@ -149,6 +149,23 @@ footer{background:#0f3d63;color:#fff;text-align:center;padding:18px;margin-top:3
 .ai-context-note{background:#ecfeff;border:1px solid #a5f3fc;color:#155e75;padding:11px;border-radius:10px;margin-top:12px;line-height:1.5}
 @media(max-width:700px){.ai-input-row{grid-template-columns:1fr 1fr}.ai-input-row input{grid-column:1/-1}.ai-input-row button{width:100%}}
 
+
+.vtu-resource-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:20px}
+.vtu-resource-card{background:#f8fafc;border:1px solid #d8e2ef;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.vtu-resource-icon{font-size:34px}
+.vtu-resource-card h3{margin:0;color:#123f68}
+.vtu-resource-card p{margin:0;line-height:1.55;color:#475569;flex:1}
+.vtu-link-btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;text-align:center;margin-top:8px}
+@media(max-width:600px){.vtu-resource-grid{grid-template-columns:1fr}.vtu-resource-card{padding:16px}}
+
+.vtu-student-selector{margin:18px 0 22px;padding:20px;background:#f8fafc;border:1px solid #cbdcf0;border-radius:16px}
+.vtu-student-selector h3{margin:0 0 8px;color:#123f68}.vtu-student-selector>p{margin:0 0 16px;color:#475569;line-height:1.5}
+.vtu-student-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.vtu-student-form .form-group{margin:0}.vtu-student-form label{display:block;font-weight:600;margin-bottom:6px}
+.vtu-student-form select,.vtu-student-form input{width:100%;box-sizing:border-box;min-height:44px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;font:inherit;color:#172b45}
+.vtu-subject-field{grid-column:1/-1}.vtu-student-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.vtu-course-result{margin-top:16px;line-height:1.6}.vtu-result-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.vtu-result-links a{display:inline-block;padding:9px 14px;border-radius:8px;background:#1764a5;color:#fff;text-decoration:none;font-weight:600}
+@media(max-width:650px){.vtu-student-form{grid-template-columns:1fr}.vtu-subject-field{grid-column:auto}.vtu-student-selector{padding:14px}}
 </style>
 </head>
 <body>
@@ -220,6 +237,7 @@ footer{background:#0f3d63;color:#fff;text-align:center;padding:18px;margin-top:3
 <button onclick="showAppView('friendsView',document.getElementById('navMore'));closeMoreMenu()">👥 Friends</button>
 <button onclick="showAppView('studentSearchView',document.getElementById('navMore'));closeMoreMenu()">🔎 Find Student</button>
 <button onclick="showAppView('aiAssistantView',document.getElementById('navMore'));closeMoreMenu()">🤖 AI Assistant</button>
+<button onclick="showAppView('vtuNotesView',document.getElementById('navMore'));closeMoreMenu()">📚 VTU Notes Library</button>
 </div>
 </div>
 </nav>
@@ -335,6 +353,29 @@ footer{background:#0f3d63;color:#fff;text-align:center;padding:18px;margin-top:3
 </section>
 
 
+<section id="vtuNotesView" class="app-view communication-page">
+<h2>📚 VTU Official Notes & Study Materials</h2>
+<p>View study materials published through Visvesvaraya Technological University (VTU). Use the official portals below to browse available content and download files when downloads are provided by VTU.</p>
+<div class="vtu-student-selector">
+  <h3>🎓 Find materials for your course</h3>
+  <p>Enter your academic details to make the official VTU resources easier to navigate. VTU may organize resources by scheme, branch, semester, or course code.</p>
+  <div class="vtu-student-form">
+    <div class="form-group"><label for="vtuDegree">Program</label><select id="vtuDegree"><option value="BE">B.E. / B.Tech</option><option value="BCA">BCA</option><option value="BBA">BBA</option><option value="ME">M.E. / M.Tech</option><option value="Other">Other</option></select></div>
+    <div class="form-group"><label for="vtuBranch">Branch / Department</label><select id="vtuBranch"><option value="Computer Science and Engineering">Computer Science and Engineering (CSE)</option><option value="Information Science and Engineering">Information Science and Engineering (ISE)</option><option value="Artificial Intelligence and Machine Learning">AI & Machine Learning (AIML)</option><option value="Computer Science and Design">Computer Science and Design</option><option value="Electronics and Communication Engineering">Electronics & Communication (ECE)</option><option value="Electrical and Electronics Engineering">Electrical & Electronics (EEE)</option><option value="Civil Engineering">Civil Engineering</option><option value="Mechanical Engineering">Mechanical Engineering</option><option value="Other">Other branch</option></select></div>
+    <div class="form-group"><label for="vtuScheme">Scheme / Regulation</label><select id="vtuScheme"><option value="2025 Scheme">2025 Scheme</option><option value="2022 Scheme">2022 Scheme</option><option value="2021 Scheme">2021 Scheme</option><option value="2018 Scheme">2018 Scheme</option><option value="Other / not sure">Other / not sure</option></select></div>
+    <div class="form-group"><label for="vtuSemester">Semester</label><select id="vtuSemester"><option value="1">1st Semester</option><option value="2">2nd Semester</option><option value="3">3rd Semester</option><option value="4">4th Semester</option><option value="5">5th Semester</option><option value="6">6th Semester</option><option value="7">7th Semester</option><option value="8">8th Semester</option></select></div>
+    <div class="form-group vtu-subject-field"><label for="vtuSubject">Subject name or course code (optional)</label><input id="vtuSubject" type="text" placeholder="e.g., Data Structures /  BCS..." autocomplete="off"></div>
+  </div>
+  <div class="profile-actions vtu-student-actions"><button type="button" class="add-btn" onclick="vtuFindCourseResources()">🔎 Find My VTU Resources</button><button type="button" class="stop-btn" onclick="vtuResetCourseForm()">↺ Reset</button></div>
+  <div id="vtuCourseResult" class="local-note vtu-course-result" style="display:none" aria-live="polite"></div>
+</div>
+<div class="vtu-resource-grid">
+<div class="vtu-resource-card"><div class="vtu-resource-icon">📘</div><h3>VTU Study Materials</h3><p>Official VTU page with study material and formula handbooks for selected subjects and semesters.</p><a class="add-btn vtu-link-btn" href="https://vtu.ac.in/en/study-material/" target="_blank" rel="noopener noreferrer">👁️ View / Download on VTU</a></div>
+<div class="vtu-resource-card"><div class="vtu-resource-icon">🎓</div><h3>VTU e-Learning Portal</h3><p>Access the university's e-content repository, learning portal, and available educational resources.</p><a class="add-btn vtu-link-btn" href="https://elearning.vtu.ac.in/" target="_blank" rel="noopener noreferrer">🌐 Open VTU e-Learning</a></div>
+</div>
+<div class="local-note" style="margin-top:16px">ℹ️ These links open VTU's official websites in a new tab. Some resources may require portal access or may not provide a direct PDF download. EduVoice AI is a student project and is not an official VTU service.</div>
+</section>
+
 <section id="messagesView" class="app-view communication-page"><h2>💬 Messages</h2><p>Chat with friends using this browser.</p>
 <div class="chat-layout"><aside class="friend-sidebar"><h3>👥 Friends</h3><div id="messageFriendList"></div><button class="add-btn" onclick="showAppView('friendsView',document.getElementById('navFriends'))">➕ Manage Friends</button></aside>
 <div class="chat-window"><div class="chat-header" id="chatHeader">Select a friend to start messaging</div><div class="chat-messages" id="chatMessages"><div class="chat-empty">Select a friend from the left side.</div></div>
@@ -378,13 +419,6 @@ onkeydown="if(event.key==='Enter')searchStudent()">
 
 <div class="ai-context-note">
 <strong>📚 Project-aware:</strong> The assistant can receive your current class timetable, next class, exam timetable, and your saved student details as context. Your AI API key is never stored in this HTML file.
-</div>
-<div class="ai-context-note" style="background:#f8fafc;border-color:#cbd5e1;color:#334155">
-<strong>🌐 AI Server URL:</strong> Enter the HTTPS URL of your deployed Node.js backend (Render, for example). Leave blank when running the website and backend on the same host.
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-<input id="aiBackendUrl" type="url" placeholder="https://your-eduvoice-backend.onrender.com" style="flex:1;min-width:220px" />
-<button type="button" class="voice-btn" onclick="saveAIBackendUrl()">💾 Save Server URL</button>
-</div><small id="aiBackendUrlStatus" style="display:block;margin-top:6px">Server URL is saved only in this browser.</small>
 </div>
 
 <div id="aiChatBox" class="ai-chat-box">
@@ -1464,22 +1498,6 @@ function buildAIContext(){
   };
 }
 
-const AI_BACKEND_URL_STORAGE="eduvoice_ai_backend_url";
-function normalizedAIBackendUrl(){
-  const saved=localStorage.getItem(AI_BACKEND_URL_STORAGE)||"";
-  return saved.trim().replace(/\/$/,"");
-}
-window.saveAIBackendUrl=()=>{
-  const field=$("aiBackendUrl");
-  const value=(field?.value||"").trim().replace(/\/$/,"");
-  if(value && !/^https?:\/\//i.test(value)){alert("Please enter a valid server URL starting with https://");return}
-  localStorage.setItem(AI_BACKEND_URL_STORAGE,value);
-  const status=$("aiBackendUrlStatus");if(status)status.textContent=value?"✅ Saved backend: "+value:"✅ Cleared. Using same-origin /api/ai.";
-};
-const savedAIBackend=localStorage.getItem(AI_BACKEND_URL_STORAGE)||"";
-if($("aiBackendUrl"))$("aiBackendUrl").value=savedAIBackend;
-if($("aiBackendUrlStatus"))$("aiBackendUrlStatus").textContent=savedAIBackend?"Saved backend: "+savedAIBackend:"Server URL is saved only in this browser.";
-
 window.useAISuggestion=(q)=>{
   $("aiQuestionInput").value=q;
   askAI();
@@ -1647,9 +1665,7 @@ window.askAI=async()=>{
       image:aiImageData||null
     };
 
-    const backendBase=normalizedAIBackendUrl();
-    const aiEndpoint=backendBase?backendBase+"/api/ai":"/api/ai";
-    const response=await fetch(aiEndpoint,{
+    const response=await fetch("/api/ai",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify(payload)
@@ -1668,10 +1684,9 @@ window.askAI=async()=>{
     setAIStatus("✅ AI answer received.");
   }catch(err){
     console.error("AI Assistant:",err);
-    const backendBase=normalizedAIBackendUrl();
-    const msg=err?.message||(!backendBase?"AI backend not found. Deploy the Node.js server, then enter its HTTPS URL in AI Server URL above.":"Could not reach AI backend at "+backendBase+". Check that the server is deployed and CORS is enabled.");
+    const msg="I couldn't connect to the AI service. Make sure the project is running through the provided Node.js backend and that OPENAI_API_KEY is configured on the server.";
     addAIMessage("system",msg);
-    setAIStatus("❌ AI service unavailable: "+msg);
+    setAIStatus("❌ AI service unavailable.");
   }finally{
     if(sendButton)sendButton.disabled=false;
   }
@@ -1706,5 +1721,31 @@ updateClock();updateClassInfo();displayTimetable();if($("examSchedulePanel")&&$(
 }
 },1000);
 </script>
+
+<script>
+function vtuFindCourseResources(){
+  const degree=document.getElementById('vtuDegree')?.value||'BE';
+  const branch=document.getElementById('vtuBranch')?.value||'Computer Science and Engineering';
+  const scheme=document.getElementById('vtuScheme')?.value||'2025 Scheme';
+  const semester=document.getElementById('vtuSemester')?.value||'1';
+  const subject=(document.getElementById('vtuSubject')?.value||'').trim();
+  const result=document.getElementById('vtuCourseResult');
+  if(!result)return;
+  const details=[degree,branch,scheme,semester+' Semester',subject?('Subject/course: '+subject):''].filter(Boolean);
+  result.style.display='block';
+  result.innerHTML='<strong>📘 Your selected study details</strong><br>'+details.map(v=>vtuEscapeHtml(v)).join(' • ')+
+    '<p style="margin:10px 0 0">The official VTU pages below are the verified university resource destinations. VTU may not expose a direct PDF link for every selected branch, scheme, semester, or subject; after opening the page, use the page’s available syllabus/material links and search for your course code.</p>'+
+    '<div class="vtu-result-links"><a href="https://vtu.ac.in/en/study-material/" target="_blank" rel="noopener noreferrer">📚 Browse official Study Materials</a><a href="https://vtu.ac.in/en/b-e-scheme-syllabus/" target="_blank" rel="noopener noreferrer">📑 Browse official Scheme & Syllabus</a><a href="https://elearning.vtu.ac.in/" target="_blank" rel="noopener noreferrer">🎓 Open VTU e-Learning</a></div>';
+  result.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function vtuResetCourseForm(){
+  const form=document.getElementById('vtuStudentSelector');
+  ['vtuDegree','vtuBranch','vtuScheme','vtuSemester','vtuSubject'].forEach(id=>{const el=document.getElementById(id);if(el && el.tagName==='SELECT')el.selectedIndex=0;});
+  const sub=document.getElementById('vtuSubject');if(sub)sub.value='';
+  const result=document.getElementById('vtuCourseResult');if(result){result.style.display='none';result.innerHTML='';}
+}
+function vtuEscapeHtml(value){return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+</script>
+
 </body>
 </html>
