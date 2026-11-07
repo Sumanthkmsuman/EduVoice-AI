@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#1261a0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>EduVoice AI - Student Voice Assistant</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:linear-gradient(135deg,#eaf4ff,#f5f7fb);color:#1e293b;min-height:100vh}
+button,input,select{font:inherit}button{border:0;border-radius:8px;padding:11px 17px;cursor:pointer;font-weight:700}
+input,select{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;outline:0}
+.hidden{display:none!important}
+
+#loginPage,#profilePage{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+#loginPage{background:linear-gradient(135deg,#0f4c75,#246bce)}
+#profilePage{display:none;background:linear-gradient(135deg,#eaf4ff,#f5f7fb)}
+.login-card,.profile-card{width:100%;background:#fff;border-radius:24px;padding:38px 44px;box-shadow:0 18px 60px #0004}
+.login-card{max-width:540px}.profile-card{max-width:650px}
+.login-logo,.profile-icon{text-align:center;font-size:60px}
+.login-card h1,.profile-card h1{text-align:center;color:#0f3d63;font-size:32px}
+.login-sub,.profile-sub{text-align:center;color:#64748b;margin:8px 0 28px}
+.auth-tabs{display:flex;gap:8px;margin-bottom:20px}.auth-tabs button{flex:1;background:#eaf4ff;color:#0f3d63}
+.auth-tabs button.active{background:#1261a0;color:#fff}
+.auth-form label,.profile-group label{display:block;font-weight:700;margin:14px 0 7px;color:#334155}
+.auth-btn{width:100%;color:#fff;margin-top:20px;background:#1261a0}
+.link-btn{width:100%;background:none;color:#1261a0;margin-top:8px}
+.password-wrap{position:relative}.password-wrap input{padding-right:50px}
+.show-pass{position:absolute;right:4px;top:4px;background:transparent;color:#64748b;padding:7px}
+.auth-message,.profile-message{display:none;margin-top:16px;padding:12px;border-radius:10px;text-align:center;line-height:1.45}
+.auth-message.error,.profile-message.error{display:block;background:#fee2e2;color:#b91c1c}
+.auth-message.success,.profile-message.success{display:block;background:#dcfce7;color:#166534}
+.firebase-note{text-align:center;color:#64748b;font-size:12px;line-height:1.5;margin-top:15px}
+
+.profile-icon{margin-bottom:5px}.profile-sub{margin-bottom:22px}
+.profile-account{background:#eff6ff;border-radius:10px;padding:12px;margin-bottom:20px;color:#334155}
+.profile-account strong{color:#0f3d63}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.profile-group input{width:100%}
+.profile-actions{display:flex;gap:10px;margin-top:22px}
+.profile-back{background:#64748b;color:#fff}.profile-save{flex:1;background:#16a34a;color:#fff}
+.profile-logout{background:#dc2626;color:#fff}
+
+#appPage{display:none}
+header{background:linear-gradient(135deg,#0f3d63,#1261a0);color:#fff;text-align:center;padding:22px;box-shadow:0 4px 15px #0002}
+header h1{font-size:29px;margin-bottom:7px}
+.userbar{width:94%;max-width:1250px;margin:12px auto;display:flex;justify-content:flex-end;gap:10px;align-items:center}
+.user-email{background:#eff6ff;color:#0f3d63;border-radius:20px;padding:8px 13px;font-size:13px}
+.logout-btn{background:#dc2626;color:#fff}
+.container{width:94%;max-width:1250px;margin:18px auto}
+.app-nav{display:flex;gap:10px;flex-wrap:wrap;background:#fff;padding:10px;border-radius:14px;box-shadow:0 5px 20px #0001;position:sticky;top:10px;z-index:1000}
+.app-nav button{background:#eaf4ff;color:#0f3d63}.app-nav button.active{background:#1261a0;color:#fff}
+.app-view{display:none}.app-view.active{display:block}
+.clock-section,.controls,.voice-section,.table-section,.form-section,.communication-page{background:#fff;border-radius:15px;padding:20px;box-shadow:0 5px 20px #0001;margin-bottom:20px}
+.clock-section{text-align:center}.date{color:#64748b}.clock{font-size:42px;font-weight:bold;color:#1261a0;margin:8px}
+.status{display:inline-block;padding:7px 15px;border-radius:20px;background:#dcfce7;color:#15803d;font-weight:bold;font-size:13px}
+.status.stopped{background:#fee2e2;color:#dc2626}.listening{background:#ede9fe;color:#6d28d9;margin-left:5px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:20px}
+.card{background:#fff;padding:22px;border-radius:15px;box-shadow:0 5px 20px #0001;border-left:5px solid #1261a0}
+.card.next{border-left-color:#16a34a}.card.countdown{border-left-color:#7c3aed}
+.card h2{font-size:18px;margin-bottom:15px}.class-name{font-size:22px;font-weight:bold;color:#1261a0;margin-bottom:8px}
+.next .class-name{color:#15803d}.class-details{color:#64748b;line-height:1.8}
+.countdown-time{font-size:35px;font-weight:bold;color:#7c3aed;margin:15px 0}
+.controls{text-align:center}.start-btn{background:#16a34a;color:#fff}.stop-btn{background:#dc2626;color:#fff}
+.voice-btn{background:#7c3aed;color:#fff}.mic-btn{background:#2563eb;color:#fff}.mic-btn.active{background:#dc2626}
+.add-btn{background:#1261a0;color:#fff}.voice-help{color:#64748b;line-height:1.8;margin:12px 0}
+.command-box{background:#f1f5f9;padding:15px;border-radius:10px}.command-title{font-weight:bold;color:#1261a0}
+.announcement{display:none;background:linear-gradient(135deg,#1261a0,#0f3d63);color:#fff;padding:20px;border-radius:15px;margin-bottom:20px;text-align:center}
+.announcement.show{display:block}
+.notification-panel{position:fixed;right:25px;top:25px;width:330px;background:#fff;border-radius:14px;padding:18px;box-shadow:0 8px 30px #0003;z-index:9999;display:none;border-left:5px solid #1261a0}
+.notification-panel.show{display:block}.notification-close{float:right;cursor:pointer}
+.notification-title{font-size:18px;font-weight:bold;color:#1261a0;margin-bottom:8px}.notification-message{color:#475569;line-height:1.6}
+.table-header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+.table-wrapper{overflow-x:auto}table{width:100%;border-collapse:collapse}th{background:#1261a0;color:#fff;padding:13px;text-align:left}
+td{padding:13px;border-bottom:1px solid #e2e8f0}tr.current-class{background:#dcfce7;font-weight:bold}tr.next-class{background:#dbeafe}
+.delete-btn{background:#fee2e2;color:#dc2626;padding:7px 12px}.form-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.form-group label{display:block;margin-bottom:6px;font-size:13px;color:#475569}
+.chat-layout{display:grid;grid-template-columns:250px 1fr;gap:15px;min-height:520px}
+.friend-sidebar{border:1px solid #dbe3ec;border-radius:12px;padding:12px;background:#f8fafc}
+.friend-select-btn{width:100%;text-align:left;margin:4px 0;background:#fff;color:#334155;border:1px solid #e2e8f0}
+.friend-select-btn.selected{background:#dbeafe}.chat-window{border:1px solid #dbe3ec;border-radius:12px;display:flex;flex-direction:column;overflow:hidden}
+.chat-header{padding:15px;background:linear-gradient(135deg,#0f3d63,#1261a0);color:#fff;font-weight:bold}
+.chat-messages{flex:1;min-height:340px;max-height:430px;overflow-y:auto;padding:15px;background:#f8fafc}
+.chat-empty{text-align:center;color:#64748b;padding:60px 20px}.message-bubble{max-width:75%;padding:10px 13px;margin-bottom:10px;border-radius:14px;background:#fff;border:1px solid #e2e8f0;clear:both}
+.message-bubble.me{float:right;background:#1261a0;color:#fff}.message-time{display:block;font-size:10px;opacity:.7;margin-top:4px}.message-delete-btn{display:inline-flex;align-items:center;gap:3px;background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:3px 7px;margin-left:7px;font-size:11px;font-weight:700;cursor:pointer;border-radius:6px}.message-delete-btn:hover{background:#fecaca}.message-delete-btn:active{transform:scale(.97)}
+.chat-share-actions{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px 0;border-top:1px solid #e2e8f0}.chat-input-row{display:flex;gap:8px;padding:12px;border-top:0}.chat-input-row input{flex:1}
+.schedule-share-card{border:1px solid #93c5fd;background:#eff6ff;color:#1e3a8a;border-radius:10px;padding:10px;margin-top:5px;min-width:210px}.schedule-share-card strong{display:block;margin-bottom:5px}.schedule-import-btn{margin-top:8px;background:#166534;color:white;border:0;border-radius:7px;padding:6px 10px;font-weight:700;cursor:pointer}
+.friend-add-row{display:flex;gap:8px;max-width:600px}.friend-card-list{display:flex;flex-direction:column;gap:8px;margin-top:15px}
+.friend-card{width:100%;box-sizing:border-box;border:1px solid #dbe3ec;border-radius:10px;padding:10px 14px;background:#f8fafc;display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:56px}
+.friend-card>span{flex:1;min-width:0}
+.friend-card>span>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.friend-card>div:last-child{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.friend-card .voice-btn,.friend-card .delete-btn{margin:0;white-space:nowrap}
+.local-note{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;padding:12px;border-radius:10px;margin-top:15px}
+footer{background:#0f3d63;color:#fff;text-align:center;padding:18px;margin-top:30px}
+.summary-value{padding:10px;background:#f8fafc;border-radius:8px;min-height:40px;color:#334155}
+
+@media(max-width:1000px){.cards{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){
+.login-card,.profile-card{padding:28px 20px}.profile-grid{grid-template-columns:1fr}
+.profile-actions{flex-direction:column}.cards{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}
+.chat-layout{grid-template-columns:1fr}.friend-add-row{flex-direction:column}
+.notification-panel{left:10px;right:10px;width:auto}.userbar{justify-content:center}
+}
+
+/* More navigation dropdown */
+.more-wrap{position:relative}
+.more-nav-btn{background:#eaf4ff!important;color:#0f3d63!important}
+.more-nav-btn.active{background:#1261a0!important;color:#fff!important}
+.more-menu{position:absolute;right:0;top:calc(100% + 8px);min-width:250px;background:#fff;border:1px solid #dbe3ec;border-radius:12px;padding:8px;box-shadow:0 12px 30px #0002;display:none;z-index:2000}
+.more-menu.show{display:block}
+.more-menu button{display:block;width:100%;text-align:left;background:#fff!important;color:#334155!important;margin:2px 0}
+.more-menu button:hover{background:#eaf4ff!important;color:#1261a0!important}
+@media(max-width:700px){.more-menu{right:0;min-width:220px}}
+
+.schedule-tabs{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tab-btn{border:1px solid #cbd5e1;background:#fff;color:#334155;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+.tab-btn.active{background:#0f172a;color:#fff;border-color:#0f172a}
+.tab-btn{min-height:44px}
+#classSchedulePanel[hidden],#examSchedulePanel[hidden]{display:none!important}
+.section-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:14px 0;flex-wrap:wrap}
+.inline-form-panel{background:#f8fafc;border:1px solid #dbe3ef;border-radius:14px;padding:18px;margin:14px 0}
+.next-exam-card{margin-top:16px;padding:18px;border-radius:14px;background:#eff6ff;border:1px solid #bfdbfe}
+.next-exam-card strong{font-size:18px}
+.reminder-box{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px}.form-help{font-size:13px;color:#64748b;margin:10px 0}.exam-reminder-due{font-weight:700;color:#b45309}''
+/* AI Assistant */
+.ai-hero{background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid #ddd6fe;border-radius:15px;padding:18px;margin-bottom:16px}
+.ai-hero h2{color:#4c1d95;margin-bottom:7px}.ai-hero p{color:#64748b;line-height:1.6}
+.ai-chat-box{height:430px;overflow-y:auto;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:15px}
+.ai-message{max-width:82%;padding:12px 15px;border-radius:15px;margin-bottom:12px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.ai-message.user{margin-left:auto;background:#2563eb;color:#fff;border-bottom-right-radius:5px}
+.ai-message.assistant{background:#fff;border:1px solid #e2e8f0;color:#334155;border-bottom-left-radius:5px}
+.ai-message.system{background:#fef3c7;border:1px solid #fde68a;color:#92400e;max-width:100%}
+.ai-message .ai-role{font-size:11px;font-weight:700;opacity:.72;margin-bottom:4px}
+.ai-input-row{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;margin-top:12px}
+.ai-input-row input{min-width:0}
+.ai-icon-btn{background:#ede9fe;color:#5b21b6}
+.ai-send-btn{background:#1261a0;color:#fff}
+.ai-clear-btn{background:#fee2e2;color:#b91c1c}
+.ai-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.ai-tools label{display:inline-flex;align-items:center;gap:6px;padding:10px 13px;border-radius:9px;background:#f1f5f9;color:#334155;font-weight:700;cursor:pointer}
+.ai-tools input[type=file]{display:none}
+.ai-image-preview{display:none;margin-top:10px;padding:10px;background:#fff;border:1px solid #e2e8f0;border-radius:10px}
+.ai-image-preview.show{display:flex;align-items:center;gap:10px}
+.ai-image-preview img{width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #cbd5e1}
+.ai-status{font-size:13px;color:#64748b;margin-top:9px;min-height:18px}
+.ai-suggestions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.ai-suggestions button{background:#fff;border:1px solid #cbd5e1;color:#334155;padding:8px 11px;font-size:13px}
+.ai-suggestions button:hover{background:#eef2ff}
+.ai-context-note{background:#ecfeff;border:1px solid #a5f3fc;color:#155e75;padding:11px;border-radius:10px;margin-top:12px;line-height:1.5}
+@media(max-width:700px){.ai-input-row{grid-template-columns:1fr 1fr}.ai-input-row input{grid-column:1/-1}.ai-input-row button{width:100%}}
+
+
+.vtu-library-toolbar{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}
+.vtu-library-toolbar input{flex:1;min-width:220px;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;font:inherit}
+.vtu-resource-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:18px}
+.vtu-resource-card{background:#f8fafc;border:1px solid #d8e2ef;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.vtu-resource-icon{font-size:34px}
+.vtu-resource-card h3{margin:0;color:#123f68}
+.vtu-resource-card p{margin:0;line-height:1.55;color:#475569;flex:1}
+.vtu-link-btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;text-align:center;margin-top:8px}
+.vtu-library-tag{display:inline-block;background:#e0f2fe;color:#075985;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:700;width:max-content}
+@media(max-width:600px){.vtu-resource-grid{grid-template-columns:1fr}.vtu-resource-card{padding:16px}}
+
+.install-app-btn{background:#6d35e8;color:#fff;white-space:nowrap}
+.install-app-btn:hover{filter:brightness(1.08)}
+@media(max-width:600px){.app-nav{flex-wrap:wrap}.install-app-btn{flex:1}}
+</style>
+</head>
+<body>
+
+<div id="loginPage">
+<div class="login-card">
+<div class="login-logo">🎙️</div>
+<h1>EduVoice AI</h1>
+<p class="login-sub">AI-Powered Student Voice Assistant</p>
+<div class="auth-tabs">
+<button id="loginTab" class="active" onclick="showAuthMode('login')">🔐 Login</button>
+<button id="signupTab" onclick="showAuthMode('signup')">📝 Create Account</button>
+</div>
+<form id="authForm">
+<label>Email Address</label>
+<input id="authEmail" type="email" autocomplete="email" placeholder="Enter your email" required>
+<label>Password</label>
+<div class="password-wrap">
+<input id="authPassword" type="password" autocomplete="current-password" placeholder="Enter password" minlength="6" required>
+<button type="button" class="show-pass" onclick="togglePassword()">👁️</button>
+</div>
+<div id="confirmPasswordWrap" class="hidden">
+<label>Confirm Password</label>
+<input id="confirmPassword" type="password" minlength="6" placeholder="Confirm password">
+</div>
+<button id="authSubmit" class="auth-btn" type="submit">🔐 Login</button>
+</form>
+<button id="forgotBtn" class="link-btn" onclick="resetPassword()">Forgot Password?</button>
+<div id="authMessage" class="auth-message"></div>
+<p class="firebase-note">Firebase Authentication is used for real login/signup.</p>
+</div>
+</div>
+
+<div id="profilePage">
+<div class="profile-card">
+<div class="profile-icon">👨‍🎓</div>
+<h1>Student Details</h1>
+<p class="profile-sub">Enter your details. This page appears only once for a new account.</p>
+<div class="profile-account">🔐 Logged in account: <strong id="profileEmail"></strong></div>
+<form id="profileForm">
+<div class="profile-grid">
+<div class="profile-group"><label>👤 User Name</label><input id="profileName" type="text" placeholder="Enter your full name" required></div>
+<div class="profile-group"><label>🏫 College Name</label><input id="profileCollege" type="text" placeholder="Enter your college name" required></div>
+<div class="profile-group"><label>🎓 USN</label><input id="profileUSN" type="text" placeholder="Example: 1AB23CS001" required></div>
+<div class="profile-group"><label>📱 Phone Number</label><input id="profilePhone" type="tel" inputmode="numeric" maxlength="10" placeholder="Enter 10-digit phone number" required></div>
+</div>
+<div id="profileMessage" class="profile-message"></div>
+<div class="profile-actions">
+<button id="profileBackBtn" class="profile-back" type="button" onclick="backFromProfile()">⬅️ Back</button>
+<button class="profile-save" type="submit">✅ Save Details & Continue</button>
+<button class="profile-logout" type="button" onclick="logout()">🚪 Logout</button>
+</div>
+</form>
+</div>
+</div>
+
+<div id="appPage">
+<header><h1>🎙️ EduVoice AI</h1><p>AI-Powered Class Timing, Exam & Student Assistant</p></header>
+<div class="userbar"><span id="loggedUser" class="user-email"></span><button class="logout-btn" onclick="logout()">🚪 Logout</button></div>
+<div class="container">
+<nav class="app-nav" id="mainNav">
+<button id="navHome" class="active" onclick="showAppView('homeView',this)">🏠 Class Schedule</button>
+<button id="navMessages" onclick="showAppView('messagesView',this)">💬 Messages</button>
+<button id="installAppBtn" class="install-app-btn" type="button" onclick="installEduVoiceApp()">📲 Download App</button>
+<div class="more-wrap">
+<button id="navMore" class="more-nav-btn" onclick="toggleMoreMenu(event)">⋮ More</button>
+<div id="moreMenu" class="more-menu">
+<button onclick="showUserDetails();closeMoreMenu()">👤 My Details</button>
+<button onclick="showAppView('timetableView',document.getElementById('navMore'));closeMoreMenu()">📅 Class Timetable</button>
+<button onclick="showAppView('friendsView',document.getElementById('navMore'));closeMoreMenu()">👥 Friends</button>
+<button onclick="showAppView('studentSearchView',document.getElementById('navMore'));closeMoreMenu()">🔎 Find Student</button>
+<button onclick="showAppView('aiAssistantView',document.getElementById('navMore'));closeMoreMenu()">🤖 AI Assistant</button>\n<button onclick="showAppView('vtuLibraryView',document.getElementById('navMore'));closeMoreMenu()">📚 VTU Library</button>
+</div>
+</div>
+</nav>
+
+<div id="homeView" class="app-view active">
+
+
+<section class="clock-section">
+<div class="date" id="date">Loading date...</div><div class="clock" id="clock">00:00:00</div>
+<span class="status" id="assistantStatus">● Assistant Running</span>
+<span class="status listening" id="listeningStatus">🎤 Voice Ready</span>
+</section>
+<section class="announcement" id="announcement"><div style="font-size:35px">🔊</div><h2 id="announcementTitle">Class Announcement</h2><p id="announcementText"></p></section>
+<section class="cards">
+<div class="card"><h2>📚 Current Class</h2><div class="class-name" id="currentClass">No Class</div><div class="class-details" id="currentDetails">No class is currently running.</div></div>
+<div class="card next"><h2>⏭️ Next Class</h2><div class="class-name" id="nextClass">No Upcoming Class</div><div class="class-details" id="nextDetails">No upcoming class available.</div></div>
+<div class="card countdown"><h2>⏳ Upcoming-Class Countdown</h2><div class="countdown-time" id="countdown">--:--:--</div><div id="countdownLabel">Waiting for next class</div></div>
+</section>
+<section class="controls">
+<button class="start-btn" onclick="startAssistant()">▶ Start Assistant</button>
+<button class="stop-btn" onclick="stopAssistant()">■ Stop Assistant</button>
+<button class="voice-btn" onclick="testVoice()">🔊 Test Voice</button>
+<button class="mic-btn" id="micButton" onclick="startListening()">🎤 Ask Assistant</button>
+</section>
+<section class="voice-section"><h2>🎙️ Voice Interaction</h2>
+<div class="voice-help">You can ask:<br>• “What is my next class?”<br>• “What class is going on now?”<br>• “Tell me today's schedule.”<br>• “What is the next class after DBMS?”</div>
+<div class="command-box"><span class="command-title">Last Voice Command:</span> <span id="lastCommand">No command yet.</span></div>
+</section>
+
+
+</div>
+
+
+<section id="timetableView" class="app-view communication-page">
+<div class="table-header">
+<div>
+<h2>📅 Class Timetable</h2>
+<p class="subtext">Manage your weekly classes and exam timetable from one place.</p>
+</div>
+<div class="schedule-tabs">
+<button type="button" id="classTabBtn" class="tab-btn active" data-schedule-tab="class">📚 Class Timetable</button>
+<button type="button" id="examTabBtn" class="tab-btn" data-schedule-tab="exam">📝 Exam Timetable</button>
+</div>
+</div>
+
+<div id="classSchedulePanel">
+<div id="scheduleModeLabel" class="subtext" style="margin:4px 0 10px">Showing: 📚 Class Timetable</div>
+<div class="section-toolbar">
+<select id="daySelect" onchange="displayTimetable()">
+<option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option>
+<option>Friday</option><option>Saturday</option><option>Sunday</option>
+</select>
+<button class="add-btn" onclick="showAddClassForm()">➕ Add Class</button>
+</div>
+
+<div id="addClassPanel" class="inline-form-panel" style="display:none">
+<h3>➕ Add Class to Timetable</h3>
+<div class="form-grid">
+<div class="form-group"><label>Day</label><select id="addDay">
+<option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option>
+<option>Friday</option><option>Saturday</option><option>Sunday</option>
+</select></div>
+<div class="form-group"><label>Start Time</label><input type="time" id="startTime"></div>
+<div class="form-group"><label>End Time</label><input type="time" id="endTime"></div>
+<div class="form-group"><label>Subject</label><input id="subject" placeholder="Example: DBMS"></div>
+<div class="form-group"><label>Faculty</label><input id="faculty" placeholder="Faculty Name"></div>
+<div class="form-group"><label>Room</label><input id="room" placeholder="Room 101"></div>
+</div>
+<div class="profile-actions" style="margin-top:12px">
+<button class="add-btn" onclick="addClass()">➕ Add Class</button>
+<button class="stop-btn" onclick="hideAddClassForm()">✖ Cancel</button>
+</div>
+</div>
+
+<div class="table-wrapper">
+<table>
+<thead><tr><th>Start Time</th><th>End Time</th><th>Subject</th><th>Faculty</th><th>Room</th><th>Action</th></tr></thead>
+<tbody id="timetableBody"></tbody>
+</table>
+</div>
+</div>
+
+<div id="examSchedulePanel" hidden>
+<div class="section-toolbar">
+<h3 style="margin:0">📝 Exam Timetable</h3>
+<button type="button" id="openExamBtn" class="add-btn">➕ Add Exam</button>
+</div>
+
+<div id="addExamPanel" class="inline-form-panel" style="display:none">
+<h3>➕ Add New Exam</h3>
+<div class="form-grid">
+<div class="form-group"><label>Exam Subject Name</label><input id="examSubject" placeholder="Example: Data Structures"></div>
+<div class="form-group"><label>Exam Date</label><input type="date" id="examDate"></div>
+<div class="form-group"><label>Exam Type</label><select id="examType"><option>Internal Exam</option><option>Semester Exam</option><option>Practical Exam</option><option>Model Exam</option><option>Other</option></select></div>
+<div class="form-group reminder-box"><label>🔔 Reminder Date</label><input type="date" id="reminderDate"></div>
+<div class="form-group reminder-box"><label>⏰ Reminder Time</label><input type="time" id="reminderTime"></div>
+</div>
+<p class="form-help">Enter the exam subject and date, then choose the reminder date and time. Click Save Exam to permanently save the details in this browser.</p>
+<div class="profile-actions" style="margin-top:12px">
+<button type="button" id="saveExamBtn" class="add-btn">✅ Save Exam</button>
+<button type="button" id="cancelExamBtn" class="stop-btn">✖ Cancel</button>
+</div>
+</div>
+
+<div class="table-wrapper">
+<table>
+<thead><tr><th>Exam Date</th><th>Subject</th><th>Exam Type</th><th>🔔 Reminder</th></tr></thead>
+<tbody id="examTableBody"></tbody>
+</table>
+</div>
+<div id="nextExamCard" class="next-exam-card"></div>
+</div>
+</section>
+
+
+<section id="messagesView" class="app-view communication-page"><h2>💬 Messages</h2><p>Chat with friends using this browser.</p>
+<div class="chat-layout"><aside class="friend-sidebar"><h3>👥 Friends</h3><div id="messageFriendList"></div><button class="add-btn" onclick="showAppView('friendsView',document.getElementById('navFriends'))">➕ Manage Friends</button></aside>
+<div class="chat-window"><div class="chat-header" id="chatHeader">Select a friend to start messaging</div><div class="chat-messages" id="chatMessages"><div class="chat-empty">Select a friend from the left side.</div></div>
+<div class="chat-share-actions"><button type="button" class="voice-btn" onclick="shareClassTimetable()">📚 Share Class Timetable</button><button type="button" class="voice-btn" onclick="shareExamTimetable()">📝 Share Exam Timetable</button></div><div class="chat-input-row"><input id="messageInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMessage()"><button class="add-btn" onclick="sendMessage()">Send</button></div></div></div>
+<div class="local-note">ℹ️ Friends and messages are stored in this browser.</div></section>
+
+<section id="studentSearchView" class="app-view communication-page">
+<h2>🔎 Find Student</h2>
+<p>Search for another registered student using their 10-digit phone number.</p>
+
+<div class="form-section" style="margin-top:16px">
+<div class="table-header">
+<div>
+<h3>📱 Search Registered Student</h3>
+<p class="subtext">Enter the phone number saved by another student in My Details.</p>
+</div>
+</div>
+
+<div class="friend-add-row">
+<input id="studentPhoneSearch" type="tel" inputmode="numeric" maxlength="10"
+placeholder="Enter 10-digit phone number"
+onkeydown="if(event.key==='Enter')searchStudent()">
+<button type="button" class="add-btn" onclick="searchStudent()">🔎 Search</button>
+</div>
+
+<div id="studentSearchStatus" class="local-note">☁️ Student search becomes available after login.</div>
+<div id="studentSearchResult" style="margin-top:16px"></div>
+</div>
+
+<div class="local-note">
+🔐 Phone numbers are used to find registered students. Chat messages are private between the two signed-in students.
+</div>
+</section>
+
+
+<section id="aiAssistantView" class="app-view communication-page">
+<div class="ai-hero">
+<h2>🤖 AI Student Assistant</h2>
+<p>Ask questions about your subjects, programming, class timetable, exams, or upload a study image/question. You can type or use your microphone.</p>
+</div>
+
+<div class="ai-context-note">
+<strong>📚 Project-aware:</strong> The assistant can receive your current class timetable, next class, exam timetable, and your saved student details as context. Your AI API key is never stored in this HTML file.
+</div>
+<div class="ai-context-note" style="background:#f8fafc;border-color:#cbd5e1;color:#334155">
+<strong>🌐 AI Server URL:</strong> Enter the HTTPS URL of your deployed Node.js backend (Render, for example). Leave blank when running the website and backend on the same host.
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+<input id="aiBackendUrl" type="url" placeholder="https://your-eduvoice-backend.onrender.com" style="flex:1;min-width:220px" />
+<button type="button" class="voice-btn" onclick="saveAIBackendUrl()">💾 Save Server URL</button>
+</div><small id="aiBackendUrlStatus" style="display:block;margin-top:6px">Server URL is saved only in this browser.</small>
+</div>
+
+<div id="aiChatBox" class="ai-chat-box">
+<div class="ai-message assistant">
+<div class="ai-role">🤖 AI Assistant</div>
+Hello! I can help you understand engineering subjects, explain code step-by-step, answer study questions, and use your timetable/exam information. What would you like to learn?
+</div>
+</div>
+
+<div class="ai-suggestions">
+<button type="button" onclick="useAISuggestion('Explain data structures in simple words with examples.')">Explain Data Structures</button>
+<button type="button" onclick="useAISuggestion('What is my next class?')">My Next Class</button>
+<button type="button" onclick="useAISuggestion('What is my next exam?')">My Next Exam</button>
+<button type="button" onclick="useAISuggestion('Explain this topic like I am a beginner.')">Beginner Explanation</button>
+</div>
+
+<div class="ai-tools">
+<label for="aiImageInput">🖼️ Upload Study Image
+<input id="aiImageInput" type="file" accept="image/png,image/jpeg,image/webp">
+</label>
+<button type="button" class="ai-icon-btn" onclick="startAIListening()">🎤 Voice Ask</button>
+<button type="button" class="voice-btn" onclick="speakLastAIAnswer()">🔊 Speak Answer</button>
+<button type="button" class="ai-clear-btn" onclick="clearAIChat()">🗑️ Clear</button>
+</div>
+
+<div id="aiImagePreview" class="ai-image-preview">
+<img id="aiPreviewImage" alt="Selected study image">
+<div><strong id="aiImageName">Image selected</strong><br><small>Ask a question about this image below.</small></div>
+<button type="button" class="delete-btn" onclick="clearAIImage()">✕</button>
+</div>
+
+<div class="ai-input-row">
+<input id="aiQuestionInput" placeholder="Ask AI anything about your studies..." onkeydown="if(event.key==='Enter')askAI()">
+<button type="button" class="ai-send-btn" onclick="askAI()">🤖 Ask AI</button>
+<button type="button" class="ai-icon-btn" onclick="startAIListening()">🎤</button>
+<button type="button" class="voice-btn" onclick="speakLastAIAnswer()">🔊</button>
+</div>
+<div id="aiStatus" class="ai-status"></div>
+</section>
+
+<section id="friendsView" class="app-view communication-page"><h2>👥 Friends</h2><p>Add students from <strong>Find Student</strong>. Click a friend's name to open the chat.</p>
+<div class="local-note">🔎 To add a friend, search their 10-digit phone number in <strong>Find Student</strong>, then press <strong>➕ Add to Friends</strong>.</div>
+<div id="friendCards" class="friend-card-list"></div></section>
+</div>
+<div class="notification-panel" id="notificationPanel"><span class="notification-close" onclick="closeNotification()">✕</span><div class="notification-title" id="notificationTitle">🔔 Notification</div><div class="notification-message" id="notificationMessage"></div></div>
+<footer><p>EduVoice AI</p><p>Mini Project | AI & Automation</p></footer>
+</div>
+
+
+<section id="vtuLibraryView" class="app-view communication-page">
+  <h2>📚 VTU Official Library & Study Resources</h2>
+  <p>Browse official Visvesvaraya Technological University resources for study materials, syllabus, e-learning, and digital library access. Search the resources below to find a portal quickly.</p>
+  <div class="vtu-library-toolbar">
+    <input id="vtuLibrarySearch" type="search" placeholder="Search resources (study materials, syllabus, e-learning...)" oninput="filterVTUResources()" aria-label="Search VTU resources">
+  </div>
+  <div id="vtuLibraryCards" class="vtu-resource-grid">
+    <article class="vtu-resource-card" data-search="study materials official formula handbook mathematics physics chemistry engineering notes download">
+      <div class="vtu-resource-icon">📘</div><span class="vtu-library-tag">Official VTU</span>
+      <h3>VTU Study Materials</h3>
+      <p>Open VTU’s published study materials and formula handbooks. Available subjects and downloadable files are maintained by the university.</p>
+      <a class="add-btn vtu-link-btn" href="https://vtu.ac.in/en/study-material/" target="_blank" rel="noopener noreferrer">👁️ View / Download</a>
+    </article>
+    <article class="vtu-resource-card" data-search="scheme syllabus branch semester engineering official curriculum course">
+      <div class="vtu-resource-icon">🧾</div><span class="vtu-library-tag">Official VTU</span>
+      <h3>UG Scheme & Syllabus</h3>
+      <p>Find engineering schemes and syllabus by program, branch, and semester on the official VTU website.</p>
+      <a class="add-btn vtu-link-btn" href="https://vtu.ac.in/en/b-e-scheme-syllabus/" target="_blank" rel="noopener noreferrer">📖 Open Syllabus Portal</a>
+    </article>
+    <article class="vtu-resource-card" data-search="central library books ebooks journals library catalog">
+      <div class="vtu-resource-icon">🏛️</div><span class="vtu-library-tag">Official VTU</span>
+      <h3>VTU Central Library</h3>
+      <p>Access the university library portal for library services, catalog information, and available academic resources.</p>
+      <a class="add-btn vtu-link-btn" href="https://library.vtu.ac.in/" target="_blank" rel="noopener noreferrer">🌐 Open VTU Library</a>
+    </article>
+    <article class="vtu-resource-card" data-search="e learning e content repository lectures digital content">
+      <div class="vtu-resource-icon">🎓</div><span class="vtu-library-tag">Official VTU</span>
+      <h3>VTU e-Learning Portal</h3>
+      <p>Visit VTU’s e-learning site to explore e-content repository, course materials, and learning portals.</p>
+      <a class="add-btn vtu-link-btn" href="https://elearning.vtu.ac.in/" target="_blank" rel="noopener noreferrer">🌐 Open e-Learning</a>
+    </article>
+    <article class="vtu-resource-card" data-search="consortium digital library e resources journals ebooks publisher member college access">
+      <div class="vtu-resource-icon">🌐</div><span class="vtu-library-tag">VTU Consortium</span>
+      <h3>VTU Consortium Digital Library</h3>
+      <p>Browse consortium e-resources, journals, and digital publications. Some content may require college or member access.</p>
+      <a class="add-btn vtu-link-btn" href="https://consortium.vtu.ac.in/" target="_blank" rel="noopener noreferrer">🔎 Browse E-Resources</a>
+    </article>
+    <article class="vtu-resource-card" data-search="official university home notifications circular announcements results">
+      <div class="vtu-resource-icon">📢</div><span class="vtu-library-tag">Official VTU</span>
+      <h3>VTU Official Website</h3>
+      <p>Check official university announcements, circulars, academic updates, and other student information.</p>
+      <a class="add-btn vtu-link-btn" href="https://vtu.ac.in/en/" target="_blank" rel="noopener noreferrer">🔗 Visit VTU</a>
+    </article>
+  </div>
+  <div id="vtuLibraryEmpty" class="local-note" style="display:none;margin-top:16px">No resources match your search. Try a different keyword.</div>
+  <div class="local-note" style="margin-top:16px">ℹ️ This page links to official VTU and VTU Consortium portals. EduVoice AI does not host, copy, or claim ownership of VTU files. Direct PDF downloads depend on the official portal and access permissions. EduVoice AI is an independent student project, not an official VTU service.</div>
+</section>
+
+<script>
+function filterVTUResources(){
+  const input=document.getElementById("vtuLibrarySearch");
+  const cards=document.querySelectorAll("#vtuLibraryCards .vtu-resource-card");
+  const term=String(input?.value||"").trim().toLowerCase();
+  let visible=0;
+  cards.forEach(card=>{
+    const text=(card.innerText+" "+(card.getAttribute("data-search")||"")).toLowerCase();
+    const show=!term||text.includes(term);
+    card.style.display=show?"flex":"none";
+    if(show)visible++;
+  });
+  const empty=document.getElementById("vtuLibraryEmpty");
+  if(empty)empty.style.display=visible?"none":"block";
+}
+</script>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,signOut,updateProfile} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyBU6dV9_7190eCVSBT7gmmB32l4gxzTc8Y",
+authDomain:"social-app-2c672.firebaseapp.com",
+databaseURL:"https://social-app-2c672-default-rtdb.firebaseio.com",
+projectId:"social-app-2c672",
+storageBucket:"social-app-2c672.firebasestorage.app",
+messagingSenderId:"43672157704",
+appId:"1:43672157704:web:a372e76c0e03d2e7b11bbd"
+};
+
+let auth=null;
+let timetable,currentUID=null,assistantRunning=true,recognition=null,listening=false,selectedChatFriend=null,appInitialized=false,announced={};
+let authMode="login";
+let db=null,dbReady=false,selectedOnlineStudent=null,onlineChatUnsubscribe=null;
+
+const $=id=>document.getElementById(id);
+const userDetailsKey=uid=>"userDetails_"+uid;
+const key=name=>name+"_"+currentUID;
+
+try{
+const app=initializeApp(firebaseConfig);
+auth=getAuth(app);
+window.firebaseAuth=auth;
+}catch(e){console.error(e);setAuthMessage("Firebase initialization failed: "+friendlyError(e),"error")}
+
+window.showAuthMode=mode=>{
+authMode=mode;
+$("loginTab").classList.toggle("active",mode==="login");
+$("signupTab").classList.toggle("active",mode==="signup");
+$("authSubmit").textContent=mode==="login"?"🔐 Login":"📝 Create Account";
+$("confirmPasswordWrap").classList.toggle("hidden",mode==="login");
+$("forgotBtn").classList.toggle("hidden",mode==="signup");
+clearAuthMessage();
+};
+
+window.togglePassword=()=>{
+const x=$("authPassword");x.type=x.type==="password"?"text":"password";
+};
+
+async function startOnlineDatabase(){
+  if(dbReady)return true;
+  try{
+    const m=await import("https://www.gstatic.com/firebasejs/12.18.0/firebase-database.js");
+    db=m.getDatabase(auth.app);
+    window.firebaseDB=db;
+    window.firebaseRef=m.ref;
+    window.firebaseSet=m.set;
+    window.firebaseGet=m.get;
+    window.firebasePush=m.push;
+    window.firebaseRemove=m.remove;
+    window.firebaseOnValue=m.onValue;
+    dbReady=true;
+    const s=$("studentSearchStatus");
+    if(s)s.textContent="☁️ Student directory: Connected.";
+    return true;
+  }catch(e){
+    console.error("Online database unavailable:",e);
+    const s=$("studentSearchStatus");
+    if(s)s.textContent="⚠️ Student search/chat is unavailable. Login and all other features still work.";
+    return false;
+  }
+}
+
+
+$("authForm").addEventListener("submit",async e=>{
+e.preventDefault();
+const email=$("authEmail").value.trim(),pass=$("authPassword").value,confirm=$("confirmPassword").value;
+if(pass.length<6){setAuthMessage("Password must contain at least 6 characters.","error");return}
+if(authMode==="signup"&&pass!==confirm){setAuthMessage("Passwords do not match.","error");return}
+try{
+if(authMode==="login"){
+await signInWithEmailAndPassword(auth,email,pass);
+}else{
+const c=await createUserWithEmailAndPassword(auth,email,pass);
+try{await updateProfile(c.user,{displayName:email.split("@")[0]})}catch(_){}
+}
+}catch(e){setAuthMessage(friendlyError(e),"error")}
+});
+
+window.resetPassword=async()=>{
+const email=$("authEmail").value.trim();
+if(!email){setAuthMessage("Enter your email address first.","error");return}
+try{await sendPasswordResetEmail(auth,email);setAuthMessage("Password reset email sent. Check your inbox.","success")}
+catch(e){setAuthMessage(friendlyError(e),"error")}
+};
+
+window.logout=async()=>{
+  stopOnlineChat();
+  selectedOnlineStudent=null;
+  selectedChatFriend=null;
+  await signOut(auth);
+};
+
+function setAuthMessage(t,type){$("authMessage").textContent=t;$("authMessage").className="auth-message "+type}
+function clearAuthMessage(){$("authMessage").textContent="";$("authMessage").className="auth-message"}
+function setProfileMessage(t,type){$("profileMessage").textContent=t;$("profileMessage").className="profile-message "+type}
+function clearProfileMessage(){$("profileMessage").textContent="";$("profileMessage").className="profile-message"}
+
+function friendlyError(e){
+const c=e?.code||"";
+const m={
+"auth/invalid-api-key":"Firebase API key is invalid.",
+"auth/api-key-not-valid":"Firebase API key is invalid.",
+"auth/invalid-credential":"Incorrect email or password.",
+"auth/email-already-in-use":"This email is already registered. Please login.",
+"auth/weak-password":"Password must contain at least 6 characters.",
+"auth/invalid-email":"Please enter a valid email address.",
+"auth/too-many-requests":"Too many attempts. Please try again later.",
+"auth/network-request-failed":"Network error. Check your internet connection.",
+"auth/operation-not-allowed":"Enable Email/Password in Firebase Authentication.",
+"auth/unauthorized-domain":"Add this website domain under Firebase Authentication > Settings > Authorized domains."
+};
+return m[c]||e?.message||"Authentication failed.";
+}
+
+function loadUserDetails(uid){
+let d={};
+try{d=JSON.parse(localStorage.getItem(userDetailsKey(uid))||"{}")}catch(_){}
+$("profileName").value=d.name||window.currentUser?.displayName||"";
+$("profileCollege").value=d.college||"";
+$("profileUSN").value=d.usn||"";
+$("profilePhone").value=d.phone||"";
+$("profileEmail").textContent=window.currentUser?.email||"";
+clearProfileMessage();
+}
+
+function getUserDetails(){
+if(!currentUID)return {};
+try{return JSON.parse(localStorage.getItem(userDetailsKey(currentUID))||"{}")}catch(_){return {}}
+}
+/* Shared browser fallback for phone-linked Student Search.
+   Firebase remains the cross-device source. */
+function saveStudentToLocalDirectory(student){
+  try{
+    const phone=String(student?.phone||"").replace(/\D/g,"");
+    if(phone.length!==10)return;
+    const all=JSON.parse(localStorage.getItem("studentDirectory")||"{}");
+    all[phone]=student;
+    localStorage.setItem("studentDirectory",JSON.stringify(all));
+  }catch(e){console.warn("Local student directory save:",e)}
+}
+function getStudentFromLocalDirectory(phone){
+  try{
+    const all=JSON.parse(localStorage.getItem("studentDirectory")||"{}");
+    return all[String(phone).replace(/\D/g,"")]||null;
+  }catch(e){return null}
+}
+
+
+
+function initializeAfterLogin(uid){
+currentUID=uid;
+let saved=null;
+try{saved=localStorage.getItem(key("classTimetable"))}catch(_){}
+try{timetable=saved?JSON.parse(saved):JSON.parse(JSON.stringify(defaultTimetable))}catch(_){timetable=JSON.parse(JSON.stringify(defaultTimetable))}
+if(!localStorage.getItem(key("friends")))localStorage.setItem(key("friends"),JSON.stringify(["Rahul","Pavan","Kiran"]));
+if(!localStorage.getItem(key("messages")))localStorage.setItem(key("messages"),"{}");
+initialize();
+renderFriendCards();
+renderMessageFriends();
+setAIStatus("");
+
+const existingDetails=getUserDetails();
+if(existingDetails.phone){
+  startOnlineDatabase().then(async ready=>{
+    if(!ready)return;
+    try{
+      const student={uid,name:existingDetails.name||"Student",college:existingDetails.college||"",usn:existingDetails.usn||"",phone:existingDetails.phone,email:existingDetails.email||window.currentUser?.email||""};
+      const p=window.firebaseRef(db,"studentsByPhone/"+existingDetails.phone);
+      const old=await window.firebaseGet(p);
+      if(!old.exists()||old.val()?.uid===uid){
+        await window.firebaseSet(p,student);
+        await window.firebaseSet(window.firebaseRef(db,"students/"+uid),student);
+        await window.firebaseSet(
+          window.firebaseRef(db,"phoneToEmail/"+existingDetails.phone),
+          student
+        );
+      }
+    }catch(e){console.warn("Existing student registration skipped:",e)}
+  });
+}
+
+}
+
+function openSchedule(){
+$("profilePage").style.display="none";
+$("loginPage").style.display="none";
+$("appPage").style.display="block";
+$("loggedUser").textContent=window.currentUser?.displayName?window.currentUser.displayName+" • "+window.currentUser.email:window.currentUser?.email||"";
+initializeAfterLogin(window.currentUser.uid);
+}
+
+window.showUserDetails=()=>{
+if(!window.currentUser)return;
+$("loginPage").style.display="none";
+$("appPage").style.display="none";
+$("profilePage").style.display="flex";
+$("profileBackBtn").textContent="⬅️ Back to Schedule";
+loadUserDetails(window.currentUser.uid);
+};
+
+window.backFromProfile=()=>{
+if(!window.currentUser){
+$("profilePage").style.display="none";$("loginPage").style.display="flex";return;
+}
+if(localStorage.getItem(userDetailsKey(window.currentUser.uid))){
+openSchedule();
+}else{
+signOut(auth);
+}
+};
+
+$("profileForm").addEventListener("submit",async e=>{
+e.preventDefault();
+if(!window.currentUser)return;
+
+const name=$("profileName").value.trim();
+const college=$("profileCollege").value.trim();
+const usn=$("profileUSN").value.trim().toUpperCase();
+const phone=$("profilePhone").value.trim();
+
+if(!name||!college||!usn||!phone){setProfileMessage("Please fill in all student details.","error");return}
+if(!/^[0-9]{10}$/.test(phone)){setProfileMessage("Please enter a valid 10-digit phone number.","error");return}
+
+const details={name,college,usn,phone,email:window.currentUser.email||""};
+localStorage.setItem(userDetailsKey(window.currentUser.uid),JSON.stringify(details));
+saveStudentToLocalDirectory({
+  uid:window.currentUser.uid,name,college,usn,phone,
+  email:window.currentUser.email||""
+});
+
+try{
+if(window.currentUser.displayName!==name)await updateProfile(window.currentUser,{displayName:name});
+}catch(_){}
+
+currentUID=window.currentUser.uid;
+$("loggedUser").textContent=name+" • "+(window.currentUser.email||"");
+
+setProfileMessage("Saving student details online...","success");
+try{
+  const ready=await startOnlineDatabase();
+  if(ready){
+    const p=window.firebaseRef(db,"studentsByPhone/"+phone);
+    const old=await window.firebaseGet(p);
+    if(old.exists() && old.val()?.uid!==window.currentUser.uid){
+      setProfileMessage("This phone number is already registered to another student.","error");
+      return;
+    }
+    const student={
+      uid:window.currentUser.uid,
+      name,
+      college,
+      usn,
+      phone,
+      email:window.currentUser.email||""
+    };
+    await window.firebaseSet(p,student);
+    await window.firebaseSet(window.firebaseRef(db,"students/"+window.currentUser.uid),student);
+
+    // Main search mapping:
+    // phone number -> linked Firebase Authentication email + profile.
+    await window.firebaseSet(
+      window.firebaseRef(db,"phoneToEmail/"+phone),
+      {
+        uid:window.currentUser.uid,
+        email:window.currentUser.email||"",
+        name,
+        college,
+        usn,
+        phone
+      }
+    );
+
+    setProfileMessage("Details saved successfully. Phone is now linked to your email for Student Search.","success");
+  }else{
+    setProfileMessage("Details saved locally, but online Student Search is not connected.","error");
+  }
+}catch(err){
+  console.error("Student directory registration:",err);
+  setProfileMessage("Details saved locally, but online Student Search registration failed. Check Firebase Database rules.","error");
+}
+setTimeout(openSchedule,700);
+});
+
+const defaultTimetable={
+Monday:[
+{start:"09:00",end:"09:55",subject:"Data Structures",faculty:"Dr. Kumar",room:"Room 101"},
+{start:"10:00",end:"10:55",subject:"Database Management System",faculty:"Prof. Ravi",room:"Room 102"},
+{start:"11:10",end:"12:05",subject:"Operating Systems",faculty:"Prof. Priya",room:"Room 103"},
+{start:"12:05",end:"13:00",subject:"Java Programming",faculty:"Dr. Anand",room:"Room 104"}],
+Tuesday:[
+{start:"09:00",end:"09:55",subject:"Computer Networks",faculty:"Prof. Suresh",room:"Room 201"},
+{start:"10:00",end:"10:55",subject:"Operating Systems",faculty:"Prof. Priya",room:"Room 103"},
+{start:"11:10",end:"12:05",subject:"Java Programming",faculty:"Dr. Anand",room:"Room 104"}],
+Wednesday:[
+{start:"09:00",end:"09:55",subject:"Database Management System",faculty:"Prof. Ravi",room:"Room 102"},
+{start:"10:00",end:"10:55",subject:"Data Structures",faculty:"Dr. Kumar",room:"Room 101"},
+{start:"11:10",end:"12:05",subject:"Computer Networks",faculty:"Prof. Suresh",room:"Room 201"}],
+Thursday:[
+{start:"09:00",end:"09:55",subject:"Java Programming",faculty:"Dr. Anand",room:"Room 104"},
+{start:"10:00",end:"10:55",subject:"Computer Networks",faculty:"Prof. Suresh",room:"Room 201"},
+{start:"11:10",end:"12:05",subject:"Operating Systems",faculty:"Prof. Priya",room:"Room 103"}],
+Friday:[
+{start:"09:00",end:"09:55",subject:"Data Structures",faculty:"Dr. Kumar",room:"Room 101"},
+{start:"10:00",end:"10:55",subject:"Database Management System",faculty:"Prof. Ravi",room:"Room 102"},
+{start:"11:10",end:"12:05",subject:"Computer Networks",faculty:"Prof. Suresh",room:"Room 201"}],
+Saturday:[
+{start:"09:00",end:"09:55",subject:"Software Engineering",faculty:"Prof. Meena",room:"Room 301"},
+{start:"10:00",end:"10:55",subject:"Web Technology",faculty:"Prof. Arun",room:"Room 302"}],
+Sunday:[]
+};
+
+const today=()=>["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][new Date().getDay()];
+const mins=t=>{const[a,b]=t.split(":").map(Number);return a*60+b};
+const fmt=t=>{let[a,b]=t.split(":");a=+a;const p=a>=12?"PM":"AM";if(a>12)a-=12;if(a===0)a=12;return `${a}:${b} ${p}`};
+const nowM=()=>{const n=new Date();return n.getHours()*60+n.getMinutes()};
+function escapeHTML(t){const d=document.createElement("div");d.textContent=String(t);return d.innerHTML}
+function escapeJS(t){return String(t).replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
+
+function updateClock(){
+const n=new Date();
+$("date").textContent=n.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+$("clock").textContent=n.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true});
+}
+
+function displayTimetable(){
+if(!timetable)return;
+const d=$("daySelect").value,b=$("timetableBody"),cs=timetable[d]||[],n=nowM();
+b.innerHTML="";let marked=false;
+cs.forEach((x,i)=>{
+const r=document.createElement("tr"),s=mins(x.start),e=mins(x.end);
+if(d===today()&&n>=s&&n<e)r.className="current-class";
+else if(d===today()&&!marked&&n<s){r.className="next-class";marked=true}
+r.innerHTML=`<td>${fmt(x.start)}</td><td>${fmt(x.end)}</td><td><strong>${escapeHTML(x.subject)}</strong></td><td>${escapeHTML(x.faculty)}</td><td>${escapeHTML(x.room)}</td><td><button class="delete-btn" onclick="deleteClass(${i})">🗑 Delete</button></td>`;
+b.appendChild(r);
+});
+if(!cs.length)b.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b">No classes scheduled.</td></tr>';
+}
+
+function updateClassInfo(){
+if(!timetable)return;
+const cs=timetable[today()]||[],n=nowM();let cur=null,next=null;
+for(let i=0;i<cs.length;i++){
+if(n>=mins(cs[i].start)&&n<mins(cs[i].end)){cur=cs[i];next=cs[i+1]||null;break}
+if(n<mins(cs[i].start)&&!next)next=cs[i];
+}
+if(cur){
+$("currentClass").textContent=cur.subject;
+$("currentDetails").innerHTML=`⏰ ${fmt(cur.start)} - ${fmt(cur.end)}<br>👨‍🏫 ${escapeHTML(cur.faculty)}<br>🏫 ${escapeHTML(cur.room)}`;
+}else{$("currentClass").textContent="No Class";$("currentDetails").textContent="No class is currently running."}
+if(next){
+$("nextClass").textContent=next.subject;
+$("nextDetails").innerHTML=`⏰ Starts at ${fmt(next.start)}<br>👨‍🏫 ${escapeHTML(next.faculty)}<br>🏫 ${escapeHTML(next.room)}`;
+updateCountdown(next);
+}else{
+$("nextClass").textContent="No Upcoming Class";$("nextDetails").textContent="No more classes today.";
+$("countdown").textContent="--:--:--";$("countdownLabel").textContent="No upcoming class";
+}
+}
+
+function updateCountdown(x){
+if(!x)return;
+const n=new Date(),[h,m]=x.start.split(":").map(Number),t=new Date();
+t.setHours(h,m,0,0);
+let s=Math.max(0,Math.floor((t-n)/1000));
+$("countdown").textContent=`${String(Math.floor(s/3600)).padStart(2,"0")}:${String(Math.floor(s%3600/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+$("countdownLabel").textContent=`${x.subject} starts at ${fmt(x.start)}`;
+}
+
+function speak(t){
+if(!("speechSynthesis" in window)){alert("Text-to-Speech is not supported.");return}
+speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.9;speechSynthesis.speak(u);
+}
+window.startAssistant=()=>{assistantRunning=true;$("assistantStatus").textContent="● Assistant Running";$("assistantStatus").classList.remove("stopped");speak("EduVoice AI started. I will automatically announce your class timings.")};
+window.stopAssistant=()=>{assistantRunning=false;$("assistantStatus").textContent="● Assistant Stopped";$("assistantStatus").classList.add("stopped");speechSynthesis.cancel()};
+window.testVoice=()=>speak("Hello. This is EduVoice AI. The voice announcement system is working correctly.");
+
+function notify(t,m){$("notificationTitle").textContent=t;$("notificationMessage").textContent=m;$("notificationPanel").classList.add("show");clearTimeout(window.nt);window.nt=setTimeout(()=>$("notificationPanel").classList.remove("show"),10000)}
+window.closeNotification=()=>$("notificationPanel").classList.remove("show");
+function announce(t,m){$("announcementTitle").textContent=t;$("announcementText").textContent=m;$("announcement").classList.add("show");clearTimeout(window.at);window.at=setTimeout(()=>$("announcement").classList.remove("show"),10000)}
+
+function checkAnnouncements(){
+if(!assistantRunning||!timetable)return;
+const cs=timetable[today()]||[],n=nowM();
+cs.forEach((x,i)=>{
+const s=mins(x.start),e=mins(x.end);
+if(s-n===10){
+const k=today()+"10"+x.start;
+if(!announced[k]){
+const m=`Reminder. Your next class is ${x.subject}. It starts in 10 minutes at ${fmt(x.start)}. Room number is ${x.room}.`;
+speak(m);notify("⏰ Upcoming Class",m);announced[k]=1;
+}}
+if(n===s){
+const k=today()+"s"+x.start;
+if(!announced[k]){
+const m=`Your class is starting now. The subject is ${x.subject}. The class timing is ${fmt(x.start)} to ${fmt(x.end)}. Faculty is ${x.faculty}. Room number is ${x.room}.`;
+speak(m);notify("🔔 Class Starting",m);announce("🔔 Class Starting",m);announced[k]=1;
+}}
+if(n===e){
+const k=today()+"e"+x.end;
+if(!announced[k]){
+const nx=cs[i+1];
+const m=nx?`The ${x.subject} class has ended. Your next class is ${nx.subject}. It starts at ${fmt(nx.start)}. Faculty is ${nx.faculty}. Room number is ${nx.room}.`:`Your final class for today, ${x.subject}, has ended. There are no more classes today.`;
+speak(m);notify("⏭️ Next Class",m);announce("⏭️ Next Class",m);announced[k]=1;
+}}
+});
+}
+
+function initRecognition(){
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR){$("listeningStatus").textContent="🎤 Voice Not Supported";return}
+recognition=new SR();recognition.lang="en-IN";recognition.continuous=false;recognition.interimResults=false;
+recognition.onstart=()=>{listening=true;$("micButton").classList.add("active");$("micButton").textContent="🔴 Listening...";$("listeningStatus").textContent="🔴 Listening"};
+recognition.onend=()=>{listening=false;$("micButton").classList.remove("active");$("micButton").textContent="🎤 Ask Assistant";$("listeningStatus").textContent="🎤 Voice Ready"};
+recognition.onresult=e=>{const t=e.results[0][0].transcript;$("lastCommand").textContent=t;processCommand(t)};
+recognition.onerror=e=>console.log(e.error);
+}
+window.startListening=()=>{
+if(!recognition)return alert("Use Google Chrome or Microsoft Edge for voice recognition.");
+if(listening)recognition.stop();else try{recognition.start()}catch(e){}
+};
+
+function processCommand(c){
+const t=c.toLowerCase().trim();
+if(t.includes("after")){const s=t.split("after")[1].replace(/\bthe\b|\bclass\b/g,"").trim();if(s){answerAfter(s);return}}
+if(t.includes("next class"))return answerNext();
+if(t.includes("going on")||t.includes("current class")||t.includes("which class"))return answerCurrent();
+if(t.includes("exam")&&(t.includes("reminder")||t.includes("reminders")))return answerExamReminders();
+if(t.includes("exam")&&(t.includes("next")||t.includes("upcoming")))return answerNextExam();
+if(t.includes("exam")&&(t.includes("timetable")||t.includes("schedule")))return answerExamTimetable();
+if(t.includes("today")&&(t.includes("schedule")||t.includes("timetable")||t.includes("classes")))return answerToday();
+if(t.includes("help")||t.includes("what can you do"))return speak("You can ask me your current class, next class, today's schedule, the class after a subject, your next exam, your exam timetable, or your next exam reminder.");
+speak("Sorry, I did not understand that command.");
+}
+function answerNext(){const x=(timetable[today()]||[]).find(x=>mins(x.start)>nowM());if(!x)return speak("There are no more classes scheduled for today.");const m=`Your next class is ${x.subject}. It starts at ${fmt(x.start)}. Faculty is ${x.faculty}. Room number is ${x.room}.`;speak(m);notify("⏭️ Next Class",m)}
+function answerCurrent(){const x=(timetable[today()]||[]).find(x=>nowM()>=mins(x.start)&&nowM()<mins(x.end));if(!x)return speak("There is no class going on right now.");const m=`The class going on now is ${x.subject}. It ends at ${fmt(x.end)}. Faculty is ${x.faculty}. Room number is ${x.room}.`;speak(m);notify("📚 Current Class",m)}
+function answerToday(){const cs=timetable[today()]||[];if(!cs.length)return speak("There are no classes scheduled for today.");speak("Today's schedule is: "+cs.map((x,i)=>`${i+1}. ${x.subject}, ${fmt(x.start)} to ${fmt(x.end)}.`).join(" "));notify("📅 Today's Schedule",`${cs.length} classes are scheduled today.`)}
+function answerAfter(s){const cs=timetable[today()]||[],i=cs.findIndex(x=>x.subject.toLowerCase().includes(s)||s.includes(x.subject.toLowerCase()));if(i<0)return speak(`I could not find ${s} in today's timetable.`);if(!cs[i+1])return speak(`There is no class after ${cs[i].subject} today.`);const x=cs[i+1],m=`The next class after ${cs[i].subject} is ${x.subject}. It starts at ${fmt(x.start)}. Faculty is ${x.faculty}. Room number is ${x.room}.`;speak(m);notify("⏭️ Class After Subject",m)}
+
+
+function answerNextExam(){
+ const a=exams().sort((x,y)=>examDateTime(x)-examDateTime(y)),now=new Date(),x=a.find(e=>examDateTime(e)>=new Date(now.getFullYear(),now.getMonth(),now.getDate()));
+ if(!x)return speak("There are no upcoming exams in your exam timetable.");
+ const reminder=x.reminderDate&&x.reminderTime?` Your reminder is set for ${formatDateOnly(x.reminderDate)} at ${fmt(x.reminderTime)}.`:"";
+ const m=`Your next exam is ${x.subject}. It is on ${formatDateOnly(x.date)}. It is a ${x.type||"exam"}.${reminder}`;
+ speak(m);notify("📝 Next Exam",m);
+}
+function answerExamReminders(){
+ const a=exams().filter(x=>x.reminderDate&&x.reminderTime).sort((x,y)=>reminderDateTime(x)-reminderDateTime(y)),now=new Date(),x=a.find(e=>reminderDateTime(e)>now);
+ if(!x)return speak("There are no upcoming exam reminders.");
+ const m=`Your next exam reminder is for ${x.subject}, on ${formatDateOnly(x.reminderDate)} at ${fmt(x.reminderTime)}. The exam is on ${formatDateOnly(x.date)}.`;
+ speak(m);notify("🔔 Exam Reminder",m);
+}
+function answerExamTimetable(){
+ const a=exams().sort((x,y)=>examDateTime(x)-examDateTime(y));
+ if(!a.length)return speak("Your exam timetable is empty.");
+ const m="Your exam timetable is: "+a.slice(0,8).map((x,i)=>`${i+1}. ${x.subject} on ${formatDateOnly(x.date)}${x.reminderDate?`, reminder at ${fmt(x.reminderTime)} on ${formatDateOnly(x.reminderDate)}`:""}.`).join(" ");
+ speak(m);notify("📝 Exam Timetable",`${a.length} exam${a.length===1?"":"s"} scheduled.`);
+}
+
+function exams(){try{return JSON.parse(localStorage.getItem(key("examTimetable"))||"[]")}catch(_){return []}}
+function saveExams(a){localStorage.setItem(key("examTimetable"),JSON.stringify(a))}
+function examDateTime(x){return new Date(`${x.date}T${x.start||"00:00"}:00`)}
+function reminderDateTime(x){return x.reminderDate&&x.reminderTime?new Date(`${x.reminderDate}T${x.reminderTime}:00`):null}
+function formatDateOnly(d){if(!d)return "";const p=d.split("-").map(Number);return new Date(Date.UTC(p[0],p[1]-1,p[2])).toLocaleDateString("en-IN",{weekday:"short",day:"2-digit",month:"short",year:"numeric",timeZone:"UTC"})}
+function switchScheduleTab(tab){
+  const classPanel=document.getElementById("classSchedulePanel");
+  const examPanel=document.getElementById("examSchedulePanel");
+  const classBtn=document.getElementById("classTabBtn");
+  const examBtn=document.getElementById("examTabBtn");
+  const isExam=tab==="exam";
+  const modeLabel=document.getElementById("scheduleModeLabel");
+
+  if(!classPanel||!examPanel||!classBtn||!examBtn)return;
+
+  classPanel.hidden=isExam;
+  examPanel.hidden=!isExam;
+
+  classBtn.classList.toggle("active",!isExam);
+  examBtn.classList.toggle("active",isExam);
+  if(modeLabel)modeLabel.textContent=isExam?"Showing: 📝 Exam Timetable":"Showing: 📚 Class Timetable";
+
+  if(isExam){
+    renderExamTimetable();
+  }else{
+    displayTimetable();
+  }
+}
+function showAddClassForm(){$("addClassPanel").style.display="block";$("addDay").value=$("daySelect").value||today();$("startTime").focus()}
+function hideAddClassForm(){$("addClassPanel").style.display="none"}
+function showAddExamForm(){$("addExamPanel").style.display="block";const d=new Date();d.setDate(d.getDate()+1);const ds=d.toISOString().slice(0,10);if(!$("examDate").value)$("examDate").value=ds;if(!$("reminderDate").value)$("reminderDate").value=ds;if(!$("reminderTime").value)$("reminderTime").value="08:00";$("examSubject").focus()}
+function hideAddExamForm(){$("addExamPanel").style.display="none"}
+
+window.addExam=()=>{
+ const subject=$("examSubject").value.trim();
+ const date=$("examDate").value;
+ const type=$("examType").value;
+ const rd=$("reminderDate").value;
+ const rt=$("reminderTime").value;
+ if(!subject){alert("Please enter the exam subject name.");$("examSubject").focus();return false;}
+ if(!date){alert("Please select the exam date.");$("examDate").focus();return false;}
+ if(!rd){alert("Please select the reminder date.");$("reminderDate").focus();return false;}
+ if(!rt){alert("Please select the reminder time.");$("reminderTime").focus();return false;}
+ const examDay=new Date(date+"T00:00:00");
+ const remDT=new Date(rd+"T"+rt+":00");
+ if(isNaN(examDay.getTime())||isNaN(remDT.getTime())){alert("Please enter valid exam and reminder details.");return false;}
+ const examDayEnd=new Date(examDay.getFullYear(),examDay.getMonth(),examDay.getDate(),23,59,59);
+ if(remDT>examDayEnd){alert("Reminder date/time must be on or before the exam date.");return false;}
+ try{
+   const a=exams();
+   a.push({id:String(Date.now())+Math.random().toString(36).slice(2),subject:subject,date:date,type:type||"Exam",reminderDate:rd,reminderTime:rt,reminderAnnounced:false});
+   a.sort((x,y)=>examDateTime(x)-examDateTime(y));
+   saveExams(a);
+   ["examSubject","examDate","reminderDate","reminderTime"].forEach(id=>$(id).value="");
+   hideAddExamForm();
+   renderExamTimetable();
+   const savedMsg=subject+" exam saved successfully. Reminder is set for "+formatDateOnly(rd)+" at "+fmt(rt)+".";
+   speak(savedMsg);
+   notify("✅ Exam Saved",savedMsg);
+   return true;
+ }catch(err){
+   console.error("Exam save error:",err);
+   alert("Unable to save the exam details. Please try again.");
+   return false;
+ }
+};
+
+function renderExamTimetable(){
+ const body=$("examTableBody"),a=exams(),now=new Date();body.innerHTML="";
+ a.sort((x,y)=>examDateTime(x)-examDateTime(y));saveExams(a);
+ if(!a.length){body.innerHTML='<tr><td colspan="4" style="text-align:center;color:#64748b">No exams added yet. Click “Add Exam” to save a new exam.</td></tr>';$('nextExamCard').innerHTML="<strong>📌 Next Exam</strong><br>No upcoming exams.";return}
+ const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+ a.forEach((x,i)=>{
+   const r=document.createElement("tr"),st=examDateTime(x),rd=reminderDateTime(x);
+   if(st.toDateString()===now.toDateString())r.className="current-class";
+   else if(st>=todayStart&&i===a.findIndex(e=>examDateTime(e)>=todayStart))r.className="next-class";
+   r.innerHTML=`<td>${formatDateOnly(x.date)}</td><td><strong>${escapeHTML(x.subject)}</strong></td><td>${escapeHTML(x.type||"Exam")}</td><td class="${rd&&rd<=now&&!x.reminderAnnounced?'exam-reminder-due':''}">🔔 ${rd?formatDateOnly(x.reminderDate)+"<br>⏰ "+fmt(x.reminderTime):"Not set"}</td>`;
+   body.appendChild(r);
+ });
+ const next=a.find(x=>examDateTime(x)>=todayStart);
+ if(next){const diff=Math.max(0,examDateTime(next)-now),days=Math.floor(diff/86400000),hours=Math.floor(diff%86400000/3600000);$("nextExamCard").innerHTML=`<strong>📌 Next Exam: ${escapeHTML(next.subject)}</strong><br>📅 ${formatDateOnly(next.date)} &nbsp; 📝 ${escapeHTML(next.type||"Exam")}<br>🔔 Reminder: ${next.reminderDate?formatDateOnly(next.reminderDate)+" at "+fmt(next.reminderTime):"Not set"}<br><small>⏳ ${days?days+" day(s) ":""}${hours} hour(s) remaining.</small>`}
+ else $("nextExamCard").innerHTML="<strong>📌 Next Exam</strong><br>No upcoming exams.";
+}
+
+function checkExamReminders(){
+ const a=exams(),now=new Date();let changed=false;
+ a.forEach(x=>{const rd=reminderDateTime(x);if(rd&&!x.reminderAnnounced&&now>=rd){x.reminderAnnounced=true;changed=true;const msg=`Exam reminder. Your ${x.subject} exam is on ${formatDateOnly(x.date)}. It is a ${x.type||"exam"}.`;speak(msg);notify("🔔 Exam Reminder",msg)}});
+ if(changed){saveExams(a);if($('examSchedulePanel')&&!$('examSchedulePanel').hidden)renderExamTimetable()}
+}
+setInterval(checkExamReminders,1000);
+
+window.showAppView=(id,b)=>{
+document.querySelectorAll('.app-view').forEach(x=>x.classList.remove('active'));
+const view=document.getElementById(id);
+if(view)view.classList.add('active');
+document.querySelectorAll('.app-nav > button').forEach(x=>x.classList.remove('active'));
+if(b && b.id!=='navMore')b.classList.add('active');
+if(id==='messagesView'){
+  renderMessageFriends();
+  if(selectedOnlineStudent)renderOnlineChat();else renderChatMessages();
+}
+if(id==='friendsView')renderFriendCards();
+if(id==='studentSearchView'){
+  startOnlineDatabase();
+}
+if(id==='timetableView'){
+  const currentTab=document.getElementById('examSchedulePanel')?.hidden===false?'exam':'class';
+  switchScheduleTab(currentTab);
+  document.getElementById('addDay').value=today();
+}
+closeMoreMenu();
+scrollTo({top:0,behavior:'smooth'})
+};
+window.toggleMoreMenu=(event)=>{
+if(event)event.stopPropagation();
+const menu=document.getElementById('moreMenu');
+menu.classList.toggle('show');
+document.getElementById('navMore').classList.toggle('active',menu.classList.contains('show'));
+};
+window.closeMoreMenu=()=>{
+const menu=document.getElementById('moreMenu');
+if(menu)menu.classList.remove('show');
+const more=document.getElementById('navMore');
+if(more)more.classList.remove('active');
+};
+document.querySelectorAll('[data-schedule-tab]').forEach(btn=>{
+  btn.addEventListener('click',function(event){
+    event.preventDefault();
+    event.stopPropagation();
+    switchScheduleTab(this.getAttribute('data-schedule-tab'));
+  });
+});
+
+// Reliable Exam controls
+const openExamBtn=document.getElementById("openExamBtn");
+const saveExamBtn=document.getElementById("saveExamBtn");
+const cancelExamBtn=document.getElementById("cancelExamBtn");
+if(openExamBtn)openExamBtn.addEventListener("click",()=>showAddExamForm());
+if(saveExamBtn)saveExamBtn.addEventListener("click",()=>addExam());
+if(cancelExamBtn)cancelExamBtn.addEventListener("click",()=>hideAddExamForm());
+
+document.addEventListener('click',e=>{
+const wrap=document.querySelector('.more-wrap');
+if(wrap && !wrap.contains(e.target))closeMoreMenu();
+});
+
+function onlineChatId(a,b){return [String(a),String(b)].sort().join("_")}
+
+function stopOnlineChat(){
+  if(onlineChatUnsubscribe){
+    try{onlineChatUnsubscribe()}catch(_){}
+    onlineChatUnsubscribe=null;
+  }
+}
+
+window.searchStudent=async()=>{
+  const input=$("studentPhoneSearch"),result=$("studentSearchResult");
+  if(!input||!result)return;
+
+  const phone=(input.value||"").replace(/\D/g,"");
+  if(phone.length!==10){
+    result.innerHTML='<div class="local-note" style="background:#fee2e2;border-color:#fecaca;color:#b91c1c">❌ Enter a valid 10-digit phone number.</div>';
+    return;
+  }
+
+  const mine=String(getUserDetails().phone||"").replace(/\D/g,"");
+  if(phone===mine){
+    result.innerHTML='<div class="local-note">ℹ️ That is your own registered number. Enter another student number.</div>';
+    return;
+  }
+
+  result.innerHTML='<div class="local-note">🔎 Finding linked email for '+escapeHTML(phone)+'...</div>';
+
+  // The phone number is the search key. Firebase stores the student's
+  // authentication email and complete profile under that phone key.
+  let st=null;
+
+  try{
+    const ready=await startOnlineDatabase();
+    if(ready){
+      const phoneRecord=await window.firebaseGet(
+        window.firebaseRef(db,"phoneToEmail/"+phone)
+      );
+
+      if(phoneRecord.exists()){
+        const linked=phoneRecord.val()||{};
+        // The phone record itself contains the linked email and profile,
+        // so no client-side Firebase Auth email lookup is required.
+        st={
+          uid:linked.uid||"",
+          email:linked.email||"",
+          name:linked.name||"",
+          college:linked.college||"",
+          usn:linked.usn||"",
+          phone:linked.phone||phone
+        };
+      }
+
+      // Backward compatibility with records created by earlier versions.
+      if(!st?.uid){
+        const oldRecord=await window.firebaseGet(
+          window.firebaseRef(db,"studentsByPhone/"+phone)
+        );
+        if(oldRecord.exists()){
+          const old=oldRecord.val()||{};
+          st={
+            uid:old.uid||"",
+            email:old.email||"",
+            name:old.name||"",
+            college:old.college||"",
+            usn:old.usn||"",
+            phone:old.phone||phone
+          };
+        }
+      }
+    }
+  }catch(e){
+    console.warn("Firebase phone-to-email search failed:",e);
+  }
+
+  // Same-browser fallback.
+  if(!st){
+    st=getStudentFromLocalDirectory(phone);
+  }
+
+  if(!st){
+    result.innerHTML='<div class="local-note" style="background:#fee2e2;border-color:#fecaca;color:#b91c1c">❌ No student is linked to this phone number.<br><small>Student B must save their My Details first.</small></div>';
+    return;
+  }
+
+  if(!st.uid){
+    result.innerHTML='<div class="local-note" style="background:#fee2e2;border-color:#fecaca;color:#b91c1c">❌ Student email/profile link is incomplete.</div>';
+    return;
+  }
+
+  selectedOnlineStudent=st;
+  const alreadyFriend=isFriendStudent(st);
+
+  result.innerHTML=`
+    <div class="friend-card" style="display:block">
+      <div style="font-size:20px;font-weight:700;color:#1261a0;margin-bottom:10px">👤 Student Found</div>
+      <div class="local-note" style="margin-bottom:10px;background:#eef6ff">
+        🔗 <strong>Phone linked to:</strong> ${escapeHTML(st.email||"Email not available")}
+      </div>
+      <div style="line-height:1.9;color:#334155;background:#ffffff;border:1px solid #dbeafe;border-radius:10px;padding:12px">
+        <div><strong>👤 Name:</strong> ${escapeHTML(st.name||"Student")}</div>
+        <div><strong>🏫 College:</strong> ${escapeHTML(st.college||"Not provided")}</div>
+        <div><strong>📱 Phone:</strong> ${escapeHTML(st.phone||phone)}</div>
+        <div><strong>🎓 USN:</strong> ${escapeHTML(st.usn||"Not provided")}</div>
+        <div><strong>✉️ Email:</strong> ${escapeHTML(st.email||"Not provided")}</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+         <button type="button" class="voice-btn" onclick="startStudentChat()">💬 Start Chat</button>
+         <button type="button" class="add-btn" id="addFriendFromSearchBtn" onclick="addSearchedStudentToFriends()">${alreadyFriend?'✅ Added to Friends':'➕ Add to Friends'}</button>
+       </div>
+    </div>`;
+};
+
+window.startStudentChat=()=>{
+  if(!selectedOnlineStudent||!selectedOnlineStudent.uid){
+    alert("Search for a registered student first.");
+    return;
+  }
+  stopOnlineChat();
+  selectedChatFriend=null;
+  $("chatHeader").textContent="💬 Chat with "+(selectedOnlineStudent.name||"Student");
+  showAppView("messagesView",document.getElementById("navMessages"));
+  renderOnlineChat();
+};
+
+function escapeAttrJson(obj){return encodeURIComponent(JSON.stringify(obj));}
+function scheduleShareMarkup(m,own){
+ const kind=m.scheduleKind||m.kind||"class", title=kind==="exam"?"📝 Shared Exam Timetable":"📚 Shared Class Timetable";
+ const count=kind==="exam"?(Array.isArray(m.scheduleData)?m.scheduleData.length:0):Object.values(m.scheduleData||{}).reduce((n,a)=>n+(Array.isArray(a)?a.length:0),0);
+ const data=escapeAttrJson(m.scheduleData||{});
+ return `<div class="schedule-share-card"><strong>${title}</strong>${count} item(s) shared${own?"":"<br><button type=\"button\" class=\"schedule-import-btn\" onclick=\"importSharedTimetable('"+kind+"', '"+data+"')\">⬇ Import to My Timetable</button>"}</div>`;
+}
+window.importSharedTimetable=(kind,raw)=>{
+ let data;try{data=JSON.parse(decodeURIComponent(raw))}catch(e){alert("This shared timetable data is invalid.");return}
+ if(kind==="exam"){
+  const existing=exams(),incoming=Array.isArray(data)?data:[];let added=0;
+  incoming.forEach(x=>{if(!existing.some(y=>String(y.subject).toLowerCase()===String(x.subject).toLowerCase()&&y.date===x.date&&String(y.type||"")===String(x.type||""))){existing.push({...x,id:x.id||Date.now()+Math.random(),reminderAnnounced:false});added++}});
+  saveExams(existing);renderExamTimetable();alert(added?`Imported ${added} exam(s) into your Exam Timetable.`:"These exams are already in your timetable.");
+ }else{
+  if(!data||typeof data!=="object"){alert("Class timetable data is invalid.");return}
+  let added=0;Object.keys(data).forEach(day=>{if(!Array.isArray(data[day]))return;timetable[day]??=[];data[day].forEach(x=>{if(!timetable[day].some(y=>y.subject===x.subject&&y.start===x.start&&y.end===x.end)){timetable[day].push({...x});added++}});timetable[day].sort((a,b)=>mins(a.start)-mins(b.start))});
+  localStorage.setItem(key("classTimetable"),JSON.stringify(timetable));displayTimetable();updateClassInfo();alert(added?`Imported ${added} class(es) into your Class Timetable.`:"These classes are already in your timetable.");
+ }
+};
+window.shareClassTimetable=async()=>{
+ if(!timetable||!Object.values(timetable).some(a=>Array.isArray(a)&&a.length)){alert("Your class timetable is empty.");return}
+ await sendScheduleShare("class",JSON.parse(JSON.stringify(timetable)));
+};
+window.shareExamTimetable=async()=>{
+ const a=exams();if(!a.length){alert("Your exam timetable is empty.");return}
+ await sendScheduleShare("exam",JSON.parse(JSON.stringify(a)));
+};
+async function sendScheduleShare(kind,data){
+ if(selectedOnlineStudent){
+  if(!db||!currentUID){alert("Online chat is not connected.");return}
+  const chatId=onlineChatId(currentUID,selectedOnlineStudent.uid);
+  try{await window.firebasePush(window.firebaseRef(db,"privateChats/"+chatId+"/messages"),{senderUid:currentUID,senderName:getUserDetails().name||"Student",text:kind==="exam"?"Shared Exam Timetable":"Shared Class Timetable",kind:"scheduleShare",scheduleKind:kind,scheduleData:data,createdAt:Date.now(),time:new Date().toLocaleString("en-IN",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit",hour12:true})});}
+  catch(e){console.error(e);alert("Could not share timetable. Check Firebase Database rules.");}return;
+ }
+ if(!selectedChatFriend){alert("Please select a friend first.");return}
+ const f=friends(),m=messages();m[selectedChatFriend]??=[];m[selectedChatFriend].push({sender:"me",text:kind==="exam"?"Shared Exam Timetable":"Shared Class Timetable",kind:"scheduleShare",scheduleKind:kind,scheduleData:data,time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})});saveComm(f,m);renderChatMessages();
+}
+
+function renderOnlineChat(){
+  const box=$("chatMessages");
+  if(!box||!selectedOnlineStudent||!currentUID)return;
+  if(!db){
+    box.innerHTML='<div class="chat-empty">Online chat is not connected.</div>';
+    return;
+  }
+
+  stopOnlineChat();
+  const chatId=onlineChatId(currentUID,selectedOnlineStudent.uid);
+  const messagesRef=window.firebaseRef(db,"privateChats/"+chatId+"/messages");
+
+  onlineChatUnsubscribe=window.firebaseOnValue(messagesRef,snap=>{
+    const data=snap.val()||{};
+    const list=Object.entries(data).map(([key,m])=>({...m,key})).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+
+    if(!list.length){
+      box.innerHTML='<div class="chat-empty">No messages yet. Start the conversation.</div>';
+      return;
+    }
+
+    box.innerHTML=list.map(m=>{
+      const own=m.senderUid===currentUID;
+      const body=m.kind==="scheduleShare"?scheduleShareMarkup(m,own):escapeHTML(m.text||"");
+      return `<div class="message-bubble ${own?"me":""}">
+        ${body}
+        <span class="message-time">${escapeHTML(m.time||"")}${own&&m.key?` <button type="button" class="message-delete-btn" title="Delete this sent message" onclick="event.stopPropagation();window.deleteOnlineMessage('${escapeJS(m.key)}')">🗑 Delete</button>`:""}</span>
+      </div>`;
+    }).join("");
+    box.scrollTop=box.scrollHeight;
+  },err=>{
+    console.error("Online chat:",err);
+    box.innerHTML='<div class="chat-empty" style="color:#b91c1c">Unable to load this chat. Check Firebase Database rules.</div>';
+  });
+}
+
+window.deleteOnlineMessage=async key=>{
+  if(!key){alert("Message could not be identified.");return;}
+  if(!db||!selectedOnlineStudent||!currentUID){alert("Online chat is not connected. Please open the chat again.");return;}
+  const chatId=onlineChatId(currentUID,selectedOnlineStudent.uid);
+  const messageRef=window.firebaseRef(db,"privateChats/"+chatId+"/messages/"+key);
+  try{
+    const snap=await window.firebaseGet(messageRef);
+    if(!snap.exists()){alert("This message has already been deleted.");return;}
+    const msg=snap.val();
+    if(msg?.senderUid!==currentUID){alert("You can delete only your own sent messages.");return;}
+    if(!window.confirm("Delete this sent message?"))return;
+    await window.firebaseRemove(messageRef);
+  }catch(e){
+    console.error("Delete online message:",e);
+    alert("Message could not be deleted. Please check your Firebase Database write rules.");
+  }
+};
+
+async function sendOnlineMessage(text){
+  if(!db||!selectedOnlineStudent)throw new Error("Online chat is not ready.");
+  const chatId=onlineChatId(currentUID,selectedOnlineStudent.uid);
+  await window.firebasePush(window.firebaseRef(db,"privateChats/"+chatId+"/messages"),{
+    senderUid:currentUID,
+    senderName:getUserDetails().name||"Student",
+    text,
+    createdAt:Date.now(),
+    time:new Date().toLocaleString("en-IN",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit",hour12:true})
+  });
+}
+
+function friends(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(key("friends"))||"[]");
+    // Convert older versions that stored only names into the new friend-object format.
+    return Array.isArray(raw)?raw.map(f=>typeof f==="string"?{name:f}:f).filter(Boolean):[];
+  }catch(_){return []}
+}
+function messages(){try{return JSON.parse(localStorage.getItem(key("messages"))||"{}")}catch(_){return {}}}
+function saveComm(f,m){localStorage.setItem(key("friends"),JSON.stringify(f));localStorage.setItem(key("messages"),JSON.stringify(m))}
+function friendIdentity(f){return String(f?.uid||f?.phone||f?.email||f?.name||"").trim().toLowerCase()}
+function isFriendStudent(st){
+  if(!st)return false;
+  const id=friendIdentity(st);
+  return friends().some(f=>friendIdentity(f)===id || (st.uid&&String(f.uid||"")===String(st.uid)) || (st.phone&&String(f.phone||"")===String(st.phone)));
+}
+function friendDisplayName(f){return f?.name||f?.email||f?.phone||"Student"}
+
+function renderMessageFriends(){
+ const b=$("messageFriendList"),fs=friends();
+ if(!fs.length){b.innerHTML='<div class="chat-empty" style="padding:20px">No friends added. Search a student and add them to your Friends list.</div>';return}
+ b.innerHTML=fs.map(f=>{
+   const name=friendDisplayName(f), selected=selectedChatFriend===name;
+   return `<button class="friend-select-btn ${selected?"selected":""}" onclick="selectFriendObject('${escapeJS(friendIdentity(f))}')">👤 ${escapeHTML(name)}</button>`;
+ }).join("");
+}
+window.selectFriendObject=identity=>{
+  const f=friends().find(x=>friendIdentity(x)===String(identity).toLowerCase());
+  if(!f)return;
+  openFriendChat(f);
+};
+window.selectChatFriend=f=>{
+  if(typeof f==="string"){
+    const found=friends().find(x=>friendDisplayName(x)===f||friendIdentity(x)===f.toLowerCase());
+    if(found)f=found;
+    else f={name:f};
+  }
+  stopOnlineChat();
+  selectedOnlineStudent=null;
+  selectedChatFriend=friendDisplayName(f);
+  const m=messages();m[selectedChatFriend]??=[];saveComm(friends(),m);
+  $("chatHeader").textContent="💬 Chat with "+selectedChatFriend;
+  renderMessageFriends();renderChatMessages();$("messageInput").focus();
+};
+function renderChatMessages(){
+ const b=$("chatMessages");if(!selectedChatFriend){b.innerHTML='<div class="chat-empty">Select a friend from the left side.</div>';return}
+ const a=messages()[selectedChatFriend]||[];if(!a.length){b.innerHTML='<div class="chat-empty">No messages yet.</div>';return}
+ b.innerHTML=a.map((x,i)=>{const body=x.kind==="scheduleShare"?scheduleShareMarkup(x,x.sender==="me"):escapeHTML(x.text||"");return `<div class="message-bubble ${x.sender==="me"?"me":""}">${body}<span class="message-time">${escapeHTML(x.time||"")}${x.sender==="me"?` <button type="button" class="message-delete-btn" title="Delete this sent message" onclick="event.stopPropagation();window.deleteLocalMessage(${i})">🗑 Delete</button>`:""}</span></div>`}).join("");b.scrollTop=b.scrollHeight;
+}
+window.deleteLocalMessage=i=>{
+ const name=selectedChatFriend;if(!name)return;
+ const m=messages(),a=m[name]||[],msg=a[i];
+ if(!msg||msg.sender!=="me")return alert("You can delete only your own messages.");
+ if(!confirm("Delete this sent message?"))return;
+ a.splice(i,1);m[name]=a;saveComm(friends(),m);renderChatMessages();
+};
+
+window.sendMessage=async()=>{
+ const t=$("messageInput").value.trim();if(!t)return;
+ if(selectedOnlineStudent){
+   try{await sendOnlineMessage(t);$("messageInput").value="";}catch(e){console.error(e);alert("Message could not be sent. Check Firebase Database rules.")}return;
+ }
+ if(!selectedChatFriend)return alert("Please select a friend first.");
+ const f=friends(),m=messages();m[selectedChatFriend]??=[];m[selectedChatFriend].push({sender:"me",text:t,time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})});
+ saveComm(f,m);$("messageInput").value="";renderChatMessages();
+};
+window.addSearchedStudentToFriends=()=>{
+  const st=selectedOnlineStudent;
+  if(!st||!st.uid){alert("Search for a registered student first.");return}
+  if(isFriendStudent(st)){
+    const btn=$("addFriendFromSearchBtn");if(btn)btn.textContent="✅ Added to Friends";
+    return;
+  }
+  const f=friends(),m=messages();
+  const friend={uid:st.uid,email:st.email||"",name:st.name||"Student",college:st.college||"",usn:st.usn||"",phone:st.phone||""};
+  f.push(friend);m[friend.name]??=[];saveComm(f,m);
+  renderFriendCards();renderMessageFriends();
+  const btn=$("addFriendFromSearchBtn");if(btn){btn.textContent="✅ Added to Friends";btn.disabled=true;}
+  notify("Friend Added","👥 "+friend.name+" has been added to your Friends list.");
+};
+window.removeFriend=f=>{
+ if(!confirm("Remove "+friendDisplayName(f)+" from your friends?"))return;
+ const id=friendIdentity(f),fs=friends().filter(x=>friendIdentity(x)!==id),m=messages(),name=friendDisplayName(f);delete m[name];
+ if(selectedChatFriend===name){selectedChatFriend=null;$("chatHeader").textContent="Select a friend to start messaging"}
+ saveComm(fs,m);renderFriendCards();renderMessageFriends();renderChatMessages();
+};
+function renderFriendCards(){
+ const b=$("friendCards"),fs=friends();
+ b.innerHTML=fs.map(f=>{
+   const name=friendDisplayName(f);
+   return `<div class="friend-card" style="cursor:pointer" onclick="openFriendChatById('${escapeJS(friendIdentity(f))}')"><span><div style="font-size:18px"><strong>👤 ${escapeHTML(name)}</strong></div><small style="color:#64748b">${escapeHTML(f.phone||f.email||"")}</small></span><div><button class="voice-btn" onclick="event.stopPropagation();openFriendChatById('${escapeJS(friendIdentity(f))}')">💬 Chat</button> <button class="delete-btn" onclick="event.stopPropagation();removeFriendById('${escapeJS(friendIdentity(f))}')">🗑 Remove</button></div></div>`
+ }).join("")||'<div class="chat-empty" style="grid-column:1/-1">No friends added yet. Find a student and use “Add to Friends”.</div>';
+}
+window.openFriendChatById=id=>{const f=friends().find(x=>friendIdentity(x)===String(id).toLowerCase());if(f)openFriendChat(f)};
+window.removeFriendById=id=>{const f=friends().find(x=>friendIdentity(x)===String(id).toLowerCase());if(f)removeFriend(f)};
+window.openFriendChat=f=>{
+  if(typeof f==="string")f=friends().find(x=>friendDisplayName(x)===f||friendIdentity(x)===f.toLowerCase())||{name:f};
+  showAppView("messagesView",$("navMessages"));
+  // Registered friends with a Firebase UID must use the shared online chat,
+  // not the browser-local messages store. This allows messages and timetable
+  // shares to appear in the recipient's account on another device/browser.
+  if(f&&f.uid&&String(f.uid)!==String(currentUID||"")){
+    stopOnlineChat();
+    selectedChatFriend=null;
+    selectedOnlineStudent={uid:String(f.uid),email:f.email||"",name:f.name||"Student",college:f.college||"",usn:f.usn||"",phone:f.phone||""};
+    $("chatHeader").textContent="💬 Chat with "+(selectedOnlineStudent.name||"Student");
+    renderMessageFriends();
+    renderOnlineChat();
+    return;
+  }
+  selectedOnlineStudent=null;
+  selectedChatFriend=friendDisplayName(f);
+  selectChatFriend(f);
+};
+
+
+/* ========================= AI STUDENT ASSISTANT =========================
+   The browser calls /api/ai. Keep the real AI API key on the server.
+   Optional image input is sent as a data URL to the secure backend.
+======================================================================== */
+let lastAIAnswer="";
+let aiImageData="";
+let aiListening=false;
+
+function aiEscapeText(s){
+  return String(s||"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+}
+
+function addAIMessage(role,text){
+  const box=$("aiChatBox");
+  if(!box)return;
+  const label=role==="user"?"👤 You":role==="system"?"ℹ️ System":"🤖 AI Assistant";
+  const div=document.createElement("div");
+  div.className="ai-message "+role;
+  div.innerHTML='<div class="ai-role">'+label+'</div>'+aiEscapeText(text);
+  box.appendChild(div);
+  box.scrollTop=box.scrollHeight;
+}
+
+function setAIStatus(text){
+  const el=$("aiStatus");
+  if(el)el.textContent=text||"";
+}
+
+function getTodayScheduleForAI(){
+  try{
+    const day=today();
+    const rows=(timetable&&timetable[day])||[];
+    return {
+      day,
+      classes:rows.map(x=>({start:x.start,end:x.end,subject:x.subject,faculty:x.faculty,room:x.room}))
+    };
+  }catch(_){return {day:"Unknown",classes:[]}}
+}
+
+function getNextClassForAI(){
+  try{
+    const now=new Date();
+    const day=today();
+    const rows=[...((timetable&&timetable[day])||[])].sort((a,b)=>String(a.start).localeCompare(String(b.start)));
+    const mins=now.getHours()*60+now.getMinutes();
+    for(const c of rows){
+      const [h,m]=String(c.start||"00:00").split(":").map(Number);
+      if(h*60+m>mins)return c;
+    }
+  }catch(_){}
+  return null;
+}
+
+function getExamContextForAI(){
+  try{
+    return exams().map(e=>({
+      subject:e.subject,date:e.date,type:e.type,
+      reminderDate:e.reminderDate,reminderTime:e.reminderTime
+    })).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  }catch(_){return []}
+}
+
+function buildAIContext(){
+  const d=getUserDetails()||{};
+  return {
+    student:{
+      name:d.name||window.currentUser?.displayName||"Student",
+      college:d.college||"",
+      usn:d.usn||"",
+      phone:d.phone||"",
+      email:d.email||window.currentUser?.email||""
+    },
+    todaySchedule:getTodayScheduleForAI(),
+    nextClass:getNextClassForAI(),
+    exams:getExamContextForAI()
+  };
+}
+
+const AI_BACKEND_URL_STORAGE="eduvoice_ai_backend_url";
+function normalizedAIBackendUrl(){
+  const saved=localStorage.getItem(AI_BACKEND_URL_STORAGE)||"";
+  return saved.trim().replace(/\/$/,"");
+}
+window.saveAIBackendUrl=()=>{
+  const field=$("aiBackendUrl");
+  const value=(field?.value||"").trim().replace(/\/$/,"");
+  if(value && !/^https?:\/\//i.test(value)){alert("Please enter a valid server URL starting with https://");return}
+  localStorage.setItem(AI_BACKEND_URL_STORAGE,value);
+  const status=$("aiBackendUrlStatus");if(status)status.textContent=value?"✅ Saved backend: "+value:"✅ Cleared. Using same-origin /api/ai.";
+};
+const savedAIBackend=localStorage.getItem(AI_BACKEND_URL_STORAGE)||"";
+if($("aiBackendUrl"))$("aiBackendUrl").value=savedAIBackend;
+if($("aiBackendUrlStatus"))$("aiBackendUrlStatus").textContent=savedAIBackend?"Saved backend: "+savedAIBackend:"Server URL is saved only in this browser.";
+
+window.useAISuggestion=(q)=>{
+  $("aiQuestionInput").value=q;
+  askAI();
+};
+
+window.clearAIChat=()=>{
+  const box=$("aiChatBox");
+  if(box)box.innerHTML='<div class="ai-message assistant"><div class="ai-role">🤖 AI Assistant</div>Chat cleared. Ask me a new question.</div>';
+  lastAIAnswer="";
+  setAIStatus("");
+};
+
+window.speakLastAIAnswer=()=>{
+  if(!lastAIAnswer){
+    alert("Ask the AI a question first.");
+    return;
+  }
+  if("speechSynthesis" in window){
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(lastAIAnswer);
+    u.lang="en-IN";u.rate=.95;u.pitch=1;
+    speechSynthesis.speak(u);
+  }else alert("Text-to-speech is not supported in this browser.");
+};
+
+function aiVoiceResult(text){
+  $("aiQuestionInput").value=text;
+  setAIStatus("🎤 Voice question captured. Asking AI...");
+  askAI();
+}
+
+window.startAIListening=()=>{
+  if(aiListening){try{recognition?.stop()}catch(_){};return}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){
+    alert("Voice recognition is not supported in this browser. Try Google Chrome.");
+    return;
+  }
+  try{
+    const r=new SR();
+    r.lang="en-IN";r.interimResults=false;r.maxAlternatives=1;
+    aiListening=true;
+    setAIStatus("🎤 Listening... Ask your study question.");
+    r.onresult=e=>{
+      const text=e.results?.[0]?.[0]?.transcript||"";
+      aiVoiceResult(text);
+    };
+    r.onerror=e=>{
+      aiListening=false;
+      setAIStatus("Voice error: "+(e.error||"try again"));
+    };
+    r.onend=()=>{aiListening=false};
+    r.start();
+  }catch(e){
+    aiListening=false;
+    setAIStatus("Could not start microphone.");
+  }
+};
+
+function readAIImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(String(reader.result||""));
+    reader.onerror=()=>reject(new Error("Could not read image."));
+    reader.readAsDataURL(file);
+  });
+}
+
+$("aiImageInput")?.addEventListener("change",async e=>{
+  const file=e.target.files?.[0];
+  if(!file)return;
+  if(file.size>6*1024*1024){
+    alert("Please choose an image smaller than 6 MB.");
+    e.target.value="";
+    return;
+  }
+  if(!/^image\/(png|jpeg|webp)$/.test(file.type)){
+    alert("Please choose a PNG, JPEG, or WebP image.");
+    e.target.value="";
+    return;
+  }
+  try{
+    aiImageData=await readAIImage(file);
+    $("aiPreviewImage").src=aiImageData;
+    $("aiImageName").textContent=file.name;
+    $("aiImagePreview").classList.add("show");
+    setAIStatus("🖼️ Image ready. Ask a question about it.");
+  }catch(err){
+    console.error(err);
+    clearAIImage();
+    alert("Could not load that image.");
+  }
+});
+
+window.clearAIImage=()=>{
+  aiImageData="";
+  const input=$("aiImageInput");
+  if(input)input.value="";
+  const p=$("aiImagePreview");
+  if(p)p.classList.remove("show");
+  const img=$("aiPreviewImage");
+  if(img)img.removeAttribute("src");
+};
+
+async function getLocalAIAnswer(question){
+  const q=question.toLowerCase().trim();
+
+  if(/next class|upcoming class/.test(q)){
+    const c=getNextClassForAI();
+    if(c)return `Your next class is ${c.subject} from ${c.start} to ${c.end}. Faculty: ${c.faculty||"not provided"}. Room: ${c.room||"not provided"}.`;
+  }
+
+  if(/class.*going on|current class|which class.*now/.test(q)){
+    const now=new Date(),day=today(),rows=(timetable&&timetable[day])||[];
+    const mins=now.getHours()*60+now.getMinutes();
+    for(const c of rows){
+      const [sh,sm]=String(c.start).split(":").map(Number);
+      const [eh,em]=String(c.end).split(":").map(Number);
+      if(mins>=sh*60+sm&&mins<eh*60+em)
+        return `Your current class is ${c.subject}, from ${c.start} to ${c.end}. Faculty: ${c.faculty||"not provided"}. Room: ${c.room||"not provided"}.`;
+    }
+    return "There is no class running right now according to your saved timetable.";
+  }
+
+  if(/next exam|upcoming exam/.test(q)){
+    const list=getExamContextForAI().filter(e=>e.date);
+    const todayStr=new Date().toISOString().slice(0,10);
+    const n=list.find(e=>e.date>=todayStr);
+    if(n)return `Your next exam is ${n.subject} on ${n.date}. Type: ${n.type||"not specified"}.`;
+    return "I could not find an upcoming exam in your saved exam timetable.";
+  }
+
+  return null;
+}
+
+window.askAI=async()=>{
+  const input=$("aiQuestionInput");
+  const question=input?.value.trim()||"";
+  if(!question && !aiImageData){
+    alert("Enter a question or upload a study image.");
+    return;
+  }
+
+  const localAnswer=question?await getLocalAIAnswer(question):null;
+  if(localAnswer){
+    addAIMessage("user",question);
+    if(aiImageData) addAIMessage("system","Image selected, but this timetable question can be answered directly from your saved schedule.");
+    addAIMessage("assistant",localAnswer);
+    lastAIAnswer=localAnswer;
+    input.value="";
+    clearAIImage();
+    setAIStatus("✅ Answered from your project data.");
+    return;
+  }
+
+  addAIMessage("user",question||"Please explain this image.");
+  setAIStatus("🤖 Thinking...");
+  const sendButton=document.querySelector(".ai-send-btn");
+  if(sendButton)sendButton.disabled=true;
+
+  try{
+    const payload={
+      question:question||"Please explain this image in simple student-friendly language.",
+      context:buildAIContext(),
+      image:aiImageData||null
+    };
+
+    const backendBase=normalizedAIBackendUrl();
+    const aiEndpoint=backendBase?backendBase+"/api/ai":"/api/ai";
+    const response=await fetch(aiEndpoint,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    });
+
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(data.error||"AI server error.");
+
+    const answer=String(data.answer||"").trim();
+    if(!answer)throw new Error("AI returned an empty answer.");
+
+    addAIMessage("assistant",answer);
+    lastAIAnswer=answer;
+    input.value="";
+    clearAIImage();
+    setAIStatus("✅ AI answer received.");
+  }catch(err){
+    console.error("AI Assistant:",err);
+    const backendBase=normalizedAIBackendUrl();
+    const msg=err?.message||(!backendBase?"AI backend not found. Deploy the Node.js server, then enter its HTTPS URL in AI Server URL above.":"Could not reach AI backend at "+backendBase+". Check that the server is deployed and CORS is enabled.");
+    addAIMessage("system",msg);
+    setAIStatus("❌ AI service unavailable: "+msg);
+  }finally{
+    if(sendButton)sendButton.disabled=false;
+  }
+};
+
+function initialize(){
+$("daySelect").value=today();$("addDay").value=today();displayTimetable();updateClassInfo();updateClock();
+if(!appInitialized){initRecognition();appInitialized=true}
+}
+
+onAuthStateChanged(auth,user=>{
+if(user){
+window.currentUser=user;
+const hasDetails=!!localStorage.getItem(userDetailsKey(user.uid));
+if(hasDetails){
+$("loginPage").style.display="none";$("profilePage").style.display="none";$("appPage").style.display="block";
+$("loggedUser").textContent=user.displayName?user.displayName+" • "+user.email:user.email;
+initializeAfterLogin(user.uid);
+}else{
+$("loginPage").style.display="none";$("appPage").style.display="none";$("profilePage").style.display="flex";
+$("profileBackBtn").textContent="⬅️ Back to Login";loadUserDetails(user.uid);
+}
+}else{
+window.currentUser=null;currentUID=null;
+$("loginPage").style.display="flex";$("profilePage").style.display="none";$("appPage").style.display="none";
+}
+});
+
+setInterval(()=>{
+if(currentUID&&$("appPage").style.display==="block"){
+updateClock();updateClassInfo();displayTimetable();if($("examSchedulePanel")&&$("examSchedulePanel").style.display!=="none")renderExamTimetable();checkAnnouncements();
+}
+},1000);
+
+// === EduVoice AI reliable class timetable actions ===
+window.showAddClassForm=function(){
+  const panel=document.getElementById("addClassPanel");
+  const daySelect=document.getElementById("daySelect");
+  const addDay=document.getElementById("addDay");
+  if(!panel||!addDay||!daySelect){alert("Class form could not be opened. Please refresh the page.");return;}
+  panel.hidden=false;
+  panel.style.display="block";
+  addDay.value=daySelect.value||((typeof today==="function")?today():"Monday");
+  const start=document.getElementById("startTime");
+  if(start)start.focus();
+};
+window.hideAddClassForm=function(){
+  const panel=document.getElementById("addClassPanel");
+  if(panel){panel.hidden=true;panel.style.display="none";}
+};
+window.addClass=function(){
+  const get=id=>document.getElementById(id);
+  const day=get("addDay")?.value;
+  const start=get("startTime")?.value;
+  const end=get("endTime")?.value;
+  const subject=(get("subject")?.value||"").trim();
+  const faculty=(get("faculty")?.value||"").trim();
+  const room=(get("room")?.value||"").trim();
+  if(!day||!start||!end||!subject||!faculty||!room){
+    alert("Please fill in Day, Start Time, End Time, Subject, Faculty, and Room.");return false;
+  }
+  const toMinutes=t=>{const [h,m]=String(t).split(":").map(Number);return h*60+m;};
+  const startM=toMinutes(start),endM=toMinutes(end);
+  if(!Number.isFinite(startM)||!Number.isFinite(endM)||endM<=startM){
+    alert("End time must be later than start time.");get("endTime")?.focus();return false;
+  }
+  try{
+    if(typeof timetable==="undefined"||!timetable||typeof timetable!=="object"){
+      alert("Timetable is not initialized. Please log in again or refresh.");return false;
+    }
+    timetable[day]=Array.isArray(timetable[day])?timetable[day]:[];
+    const overlaps=timetable[day].some(c=>startM<toMinutes(c.end)&&endM>toMinutes(c.start));
+    if(overlaps){alert("This class overlaps another class on "+day+". Choose a different time.");get("startTime")?.focus();return false;}
+    timetable[day].push({start,end,subject,faculty,room});
+    timetable[day].sort((a,b)=>toMinutes(a.start)-toMinutes(b.start));
+    const storageKey=(typeof key==="function")?key("classTimetable"):"classTimetable";
+    localStorage.setItem(storageKey,JSON.stringify(timetable));
+    if(get("daySelect"))get("daySelect").value=day;
+    ["startTime","endTime","subject","faculty","room"].forEach(id=>{if(get(id))get(id).value="";});
+    window.hideAddClassForm();
+    if(typeof displayTimetable==="function")displayTimetable();
+    if(typeof updateClassInfo==="function")updateClassInfo();
+    if(typeof notify==="function")notify("✅ Class Added",subject+" added to "+day+"'s timetable.");
+    else alert("Class added successfully.");
+    return true;
+  }catch(error){
+    console.error("EduVoice AI addClass failed:",error);
+    alert("Could not save the class. Please check browser storage and try again.");return false;
+  }
+};
+window.deleteClass=function(index){
+  const day=document.getElementById("daySelect")?.value;
+  const list=(typeof timetable!=="undefined"&&timetable)?timetable[day]:null;
+  if(!Array.isArray(list)||!Number.isInteger(Number(index))||Number(index)<0||Number(index)>=list.length){
+    alert("This class entry was not found. Refresh the timetable and try again.");return;
+  }
+  const ix=Number(index),item=list[ix];
+  if(!confirm("Delete "+(item.subject||"this class")+" from "+day+"'s timetable?"))return;
+  try{
+    list.splice(ix,1);
+    const storageKey=(typeof key==="function")?key("classTimetable"):"classTimetable";
+    localStorage.setItem(storageKey,JSON.stringify(timetable));
+    if(typeof displayTimetable==="function")displayTimetable();
+    if(typeof updateClassInfo==="function")updateClassInfo();
+    if(typeof notify==="function")notify("🗑️ Class Deleted",(item.subject||"Class")+" removed from "+day+"'s timetable.");
+  }catch(error){
+    console.error("EduVoice AI deleteClass failed:",error);
+    alert("Could not delete the class. Please try again.");
+  }
+};
+
+// === Progressive Web App install ===
+let eduVoiceInstallPrompt=null;
+window.addEventListener("beforeinstallprompt",event=>{
+  event.preventDefault();
+  eduVoiceInstallPrompt=event;
+  const btn=document.getElementById("installAppBtn");
+  if(btn){btn.style.display="inline-block";btn.textContent="📲 Install EduVoice AI";}
+});
+window.addEventListener("appinstalled",()=>{
+  eduVoiceInstallPrompt=null;
+  const btn=document.getElementById("installAppBtn");
+  if(btn){btn.textContent="✅ App Installed";btn.disabled=true;}
+});
+window.installEduVoiceApp=async function(){
+  if(eduVoiceInstallPrompt){
+    eduVoiceInstallPrompt.prompt();
+    const result=await eduVoiceInstallPrompt.userChoice;
+    if(result?.outcome==="accepted")eduVoiceInstallPrompt=null;
+    return;
+  }
+  const isStandalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
+  if(isStandalone){alert("EduVoice AI is already installed on this device.");return;}
+  alert("To install EduVoice AI on Android: open this website in Chrome, tap ⋮ (menu), then choose 'Install app' or 'Add to Home screen'. If this option is not shown, first deploy the included manifest.webmanifest and service-worker.js files over HTTPS.");
+};
+if("serviceWorker" in navigator && location.protocol==="https:"){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("/service-worker.js").catch(err=>console.warn("PWA service worker registration:",err)));
+}
+
+</script>
+</body>
+</html>

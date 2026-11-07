@@ -1,0 +1,26 @@
+{
+  "id": "/",
+  "name": "EduVoice AI - Student Voice Assistant",
+  "short_name": "EduVoice AI",
+  "description": "Student class and exam timetable, friends messaging, AI student assistant, and VTU resources.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eaf4ff",
+  "theme_color": "#1261a0",
+  "icons": [
+    {
+      "src": "/eduvoice-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/eduvoice-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
