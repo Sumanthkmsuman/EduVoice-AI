@@ -379,6 +379,13 @@ onkeydown="if(event.key==='Enter')searchStudent()">
 <div class="ai-context-note">
 <strong>📚 Project-aware:</strong> The assistant can receive your current class timetable, next class, exam timetable, and your saved student details as context. Your AI API key is never stored in this HTML file.
 </div>
+<div class="ai-context-note" style="background:#f8fafc;border-color:#cbd5e1;color:#334155">
+<strong>🌐 AI Server URL:</strong> Enter the HTTPS URL of your deployed Node.js backend (Render, for example). Leave blank when running the website and backend on the same host.
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+<input id="aiBackendUrl" type="url" placeholder="https://your-eduvoice-backend.onrender.com" style="flex:1;min-width:220px" />
+<button type="button" class="voice-btn" onclick="saveAIBackendUrl()">💾 Save Server URL</button>
+</div><small id="aiBackendUrlStatus" style="display:block;margin-top:6px">Server URL is saved only in this browser.</small>
+</div>
 
 <div id="aiChatBox" class="ai-chat-box">
 <div class="ai-message assistant">
@@ -1457,6 +1464,22 @@ function buildAIContext(){
   };
 }
 
+const AI_BACKEND_URL_STORAGE="eduvoice_ai_backend_url";
+function normalizedAIBackendUrl(){
+  const saved=localStorage.getItem(AI_BACKEND_URL_STORAGE)||"";
+  return saved.trim().replace(/\/$/,"");
+}
+window.saveAIBackendUrl=()=>{
+  const field=$("aiBackendUrl");
+  const value=(field?.value||"").trim().replace(/\/$/,"");
+  if(value && !/^https?:\/\//i.test(value)){alert("Please enter a valid server URL starting with https://");return}
+  localStorage.setItem(AI_BACKEND_URL_STORAGE,value);
+  const status=$("aiBackendUrlStatus");if(status)status.textContent=value?"✅ Saved backend: "+value:"✅ Cleared. Using same-origin /api/ai.";
+};
+const savedAIBackend=localStorage.getItem(AI_BACKEND_URL_STORAGE)||"";
+if($("aiBackendUrl"))$("aiBackendUrl").value=savedAIBackend;
+if($("aiBackendUrlStatus"))$("aiBackendUrlStatus").textContent=savedAIBackend?"Saved backend: "+savedAIBackend:"Server URL is saved only in this browser.";
+
 window.useAISuggestion=(q)=>{
   $("aiQuestionInput").value=q;
   askAI();
@@ -1624,7 +1647,9 @@ window.askAI=async()=>{
       image:aiImageData||null
     };
 
-    const response=await fetch("/api/ai",{
+    const backendBase=normalizedAIBackendUrl();
+    const aiEndpoint=backendBase?backendBase+"/api/ai":"/api/ai";
+    const response=await fetch(aiEndpoint,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify(payload)
@@ -1643,9 +1668,10 @@ window.askAI=async()=>{
     setAIStatus("✅ AI answer received.");
   }catch(err){
     console.error("AI Assistant:",err);
-    const msg="I couldn't connect to the AI service. Make sure the project is running through the provided Node.js backend and that OPENAI_API_KEY is configured on the server.";
+    const backendBase=normalizedAIBackendUrl();
+    const msg=err?.message||(!backendBase?"AI backend not found. Deploy the Node.js server, then enter its HTTPS URL in AI Server URL above.":"Could not reach AI backend at "+backendBase+". Check that the server is deployed and CORS is enabled.");
     addAIMessage("system",msg);
-    setAIStatus("❌ AI service unavailable.");
+    setAIStatus("❌ AI service unavailable: "+msg);
   }finally{
     if(sendButton)sendButton.disabled=false;
   }
