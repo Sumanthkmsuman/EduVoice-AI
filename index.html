@@ -82,7 +82,8 @@ td{padding:13px;border-bottom:1px solid #e2e8f0}tr.current-class{background:#dcf
 .chat-messages{flex:1;min-height:340px;max-height:430px;overflow-y:auto;padding:15px;background:#f8fafc}
 .chat-empty{text-align:center;color:#64748b;padding:60px 20px}.message-bubble{max-width:75%;padding:10px 13px;margin-bottom:10px;border-radius:14px;background:#fff;border:1px solid #e2e8f0;clear:both}
 .message-bubble.me{float:right;background:#1261a0;color:#fff}.message-time{display:block;font-size:10px;opacity:.7;margin-top:4px}.message-delete-btn{display:inline-flex;align-items:center;gap:3px;background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;padding:3px 7px;margin-left:7px;font-size:11px;font-weight:700;cursor:pointer;border-radius:6px}.message-delete-btn:hover{background:#fecaca}.message-delete-btn:active{transform:scale(.97)}
-.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid #e2e8f0}.chat-input-row input{flex:1}
+.chat-share-actions{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px 0;border-top:1px solid #e2e8f0}.chat-input-row{display:flex;gap:8px;padding:12px;border-top:0}.chat-input-row input{flex:1}
+.schedule-share-card{border:1px solid #93c5fd;background:#eff6ff;color:#1e3a8a;border-radius:10px;padding:10px;margin-top:5px;min-width:210px}.schedule-share-card strong{display:block;margin-bottom:5px}.schedule-import-btn{margin-top:8px;background:#166534;color:white;border:0;border-radius:7px;padding:6px 10px;font-weight:700;cursor:pointer}
 .friend-add-row{display:flex;gap:8px;max-width:600px}.friend-card-list{display:flex;flex-direction:column;gap:8px;margin-top:15px}
 .friend-card{width:100%;box-sizing:border-box;border:1px solid #dbe3ec;border-radius:10px;padding:10px 14px;background:#f8fafc;display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:56px}
 .friend-card>span{flex:1;min-width:0}
@@ -337,7 +338,7 @@ footer{background:#0f3d63;color:#fff;text-align:center;padding:18px;margin-top:3
 <section id="messagesView" class="app-view communication-page"><h2>💬 Messages</h2><p>Chat with friends using this browser.</p>
 <div class="chat-layout"><aside class="friend-sidebar"><h3>👥 Friends</h3><div id="messageFriendList"></div><button class="add-btn" onclick="showAppView('friendsView',document.getElementById('navFriends'))">➕ Manage Friends</button></aside>
 <div class="chat-window"><div class="chat-header" id="chatHeader">Select a friend to start messaging</div><div class="chat-messages" id="chatMessages"><div class="chat-empty">Select a friend from the left side.</div></div>
-<div class="chat-input-row"><input id="messageInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMessage()"><button class="add-btn" onclick="sendMessage()">Send</button></div></div></div>
+<div class="chat-share-actions"><button type="button" class="voice-btn" onclick="shareClassTimetable()">📚 Share Class Timetable</button><button type="button" class="voice-btn" onclick="shareExamTimetable()">📝 Share Exam Timetable</button></div><div class="chat-input-row"><input id="messageInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMessage()"><button class="add-btn" onclick="sendMessage()">Send</button></div></div></div>
 <div class="local-note">ℹ️ Friends and messages are stored in this browser.</div></section>
 
 <section id="studentSearchView" class="app-view communication-page">
@@ -1159,6 +1160,44 @@ window.startStudentChat=()=>{
   renderOnlineChat();
 };
 
+function escapeAttrJson(obj){return encodeURIComponent(JSON.stringify(obj));}
+function scheduleShareMarkup(m,own){
+ const kind=m.scheduleKind||m.kind||"class", title=kind==="exam"?"📝 Shared Exam Timetable":"📚 Shared Class Timetable";
+ const count=kind==="exam"?(Array.isArray(m.scheduleData)?m.scheduleData.length:0):Object.values(m.scheduleData||{}).reduce((n,a)=>n+(Array.isArray(a)?a.length:0),0);
+ const data=escapeAttrJson(m.scheduleData||{});
+ return `<div class="schedule-share-card"><strong>${title}</strong>${count} item(s) shared${own?"":"<br><button type=\"button\" class=\"schedule-import-btn\" onclick=\"importSharedTimetable('"+kind+"', '"+data+"')\">⬇ Import to My Timetable</button>"}</div>`;
+}
+window.importSharedTimetable=(kind,raw)=>{
+ let data;try{data=JSON.parse(decodeURIComponent(raw))}catch(e){alert("This shared timetable data is invalid.");return}
+ if(kind==="exam"){
+  const existing=exams(),incoming=Array.isArray(data)?data:[];let added=0;
+  incoming.forEach(x=>{if(!existing.some(y=>String(y.subject).toLowerCase()===String(x.subject).toLowerCase()&&y.date===x.date&&String(y.type||"")===String(x.type||""))){existing.push({...x,id:x.id||Date.now()+Math.random(),reminderAnnounced:false});added++}});
+  saveExams(existing);renderExamTimetable();alert(added?`Imported ${added} exam(s) into your Exam Timetable.`:"These exams are already in your timetable.");
+ }else{
+  if(!data||typeof data!=="object"){alert("Class timetable data is invalid.");return}
+  let added=0;Object.keys(data).forEach(day=>{if(!Array.isArray(data[day]))return;timetable[day]??=[];data[day].forEach(x=>{if(!timetable[day].some(y=>y.subject===x.subject&&y.start===x.start&&y.end===x.end)){timetable[day].push({...x});added++}});timetable[day].sort((a,b)=>mins(a.start)-mins(b.start))});
+  localStorage.setItem(key("classTimetable"),JSON.stringify(timetable));displayTimetable();updateClassInfo();alert(added?`Imported ${added} class(es) into your Class Timetable.`:"These classes are already in your timetable.");
+ }
+};
+window.shareClassTimetable=async()=>{
+ if(!timetable||!Object.values(timetable).some(a=>Array.isArray(a)&&a.length)){alert("Your class timetable is empty.");return}
+ await sendScheduleShare("class",JSON.parse(JSON.stringify(timetable)));
+};
+window.shareExamTimetable=async()=>{
+ const a=exams();if(!a.length){alert("Your exam timetable is empty.");return}
+ await sendScheduleShare("exam",JSON.parse(JSON.stringify(a)));
+};
+async function sendScheduleShare(kind,data){
+ if(selectedOnlineStudent){
+  if(!db||!currentUID){alert("Online chat is not connected.");return}
+  const chatId=onlineChatId(currentUID,selectedOnlineStudent.uid);
+  try{await window.firebasePush(window.firebaseRef(db,"privateChats/"+chatId+"/messages"),{senderUid:currentUID,senderName:getUserDetails().name||"Student",text:kind==="exam"?"Shared Exam Timetable":"Shared Class Timetable",kind:"scheduleShare",scheduleKind:kind,scheduleData:data,createdAt:Date.now(),time:new Date().toLocaleString("en-IN",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit",hour12:true})});}
+  catch(e){console.error(e);alert("Could not share timetable. Check Firebase Database rules.");}return;
+ }
+ if(!selectedChatFriend){alert("Please select a friend first.");return}
+ const f=friends(),m=messages();m[selectedChatFriend]??=[];m[selectedChatFriend].push({sender:"me",text:kind==="exam"?"Shared Exam Timetable":"Shared Class Timetable",kind:"scheduleShare",scheduleKind:kind,scheduleData:data,time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})});saveComm(f,m);renderChatMessages();
+}
+
 function renderOnlineChat(){
   const box=$("chatMessages");
   if(!box||!selectedOnlineStudent||!currentUID)return;
@@ -1182,8 +1221,9 @@ function renderOnlineChat(){
 
     box.innerHTML=list.map(m=>{
       const own=m.senderUid===currentUID;
+      const body=m.kind==="scheduleShare"?scheduleShareMarkup(m,own):escapeHTML(m.text||"");
       return `<div class="message-bubble ${own?"me":""}">
-        ${escapeHTML(m.text||"")}
+        ${body}
         <span class="message-time">${escapeHTML(m.time||"")}${own&&m.key?` <button type="button" class="message-delete-btn" title="Delete this sent message" onclick="event.stopPropagation();window.deleteOnlineMessage('${escapeJS(m.key)}')">🗑 Delete</button>`:""}</span>
       </div>`;
     }).join("");
@@ -1270,7 +1310,7 @@ window.selectChatFriend=f=>{
 function renderChatMessages(){
  const b=$("chatMessages");if(!selectedChatFriend){b.innerHTML='<div class="chat-empty">Select a friend from the left side.</div>';return}
  const a=messages()[selectedChatFriend]||[];if(!a.length){b.innerHTML='<div class="chat-empty">No messages yet.</div>';return}
- b.innerHTML=a.map((x,i)=>`<div class="message-bubble ${x.sender==="me"?"me":""}">${escapeHTML(x.text)}<span class="message-time">${escapeHTML(x.time||"")}${x.sender==="me"?` <button type="button" class="message-delete-btn" title="Delete this sent message" onclick="event.stopPropagation();window.deleteLocalMessage(${i})">🗑 Delete</button>`:""}</span></div>`).join("");b.scrollTop=b.scrollHeight;
+ b.innerHTML=a.map((x,i)=>{const body=x.kind==="scheduleShare"?scheduleShareMarkup(x,x.sender==="me"):escapeHTML(x.text||"");return `<div class="message-bubble ${x.sender==="me"?"me":""}">${body}<span class="message-time">${escapeHTML(x.time||"")}${x.sender==="me"?` <button type="button" class="message-delete-btn" title="Delete this sent message" onclick="event.stopPropagation();window.deleteLocalMessage(${i})">🗑 Delete</button>`:""}</span></div>`}).join("");b.scrollTop=b.scrollHeight;
 }
 window.deleteLocalMessage=i=>{
  const name=selectedChatFriend;if(!name)return;
@@ -1320,8 +1360,21 @@ window.openFriendChatById=id=>{const f=friends().find(x=>friendIdentity(x)===Str
 window.removeFriendById=id=>{const f=friends().find(x=>friendIdentity(x)===String(id).toLowerCase());if(f)removeFriend(f)};
 window.openFriendChat=f=>{
   if(typeof f==="string")f=friends().find(x=>friendDisplayName(x)===f||friendIdentity(x)===f.toLowerCase())||{name:f};
-  selectedChatFriend=friendDisplayName(f);
   showAppView("messagesView",$("navMessages"));
+  // Registered friends with a Firebase UID must use the shared online chat,
+  // not the browser-local messages store. This allows messages and timetable
+  // shares to appear in the recipient's account on another device/browser.
+  if(f&&f.uid&&String(f.uid)!==String(currentUID||"")){
+    stopOnlineChat();
+    selectedChatFriend=null;
+    selectedOnlineStudent={uid:String(f.uid),email:f.email||"",name:f.name||"Student",college:f.college||"",usn:f.usn||"",phone:f.phone||""};
+    $("chatHeader").textContent="💬 Chat with "+(selectedOnlineStudent.name||"Student");
+    renderMessageFriends();
+    renderOnlineChat();
+    return;
+  }
+  selectedOnlineStudent=null;
+  selectedChatFriend=friendDisplayName(f);
   selectChatFriend(f);
 };
 
